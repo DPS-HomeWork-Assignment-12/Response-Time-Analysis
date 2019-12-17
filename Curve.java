@@ -1,52 +1,47 @@
 import java.util.ArrayList;
-import java.util.List;
 
 public class Curve {
-    private double x_intercept;
-    private double y_intercept;
-    private double slope;
-    private double[] segment;
-    
-    Segments ds = new Segments();
+	ArrayList<ArrayList<Double>> curve = new ArrayList<ArrayList<Double>>();
+	//private ArrayList<Double> segment = new ArrayList<Double>();
+	public Curve(ArrayList<Double> co_ordinates)
+	{	
+		int pairs = co_ordinates.size()/2;
+		int j = 0;
+		for (int i = 0; i < pairs; i++)
+		{
+			curve.add(new ArrayList<Double>());	
+			curve.get(i).add(0,co_ordinates.get(j));
+			curve.get(i).add(1,co_ordinates.get(j+1));
+			if (j < (co_ordinates.size() - 2))
+			{
+				curve.get(i).add(2,((co_ordinates.get(j+1) - co_ordinates.get(j+3))/(co_ordinates.get(j) - co_ordinates.get(j+2))));
+			}
+			
+			j = j+2;		
+		}
+		System.out.println(curve.size());
+		System.out.println(curve);
+	
+			
+	}
 
-/*creating a single linear curve of one segment with slope and x,y intercepts*/
-    public Curve(double x_intercept, double y_intercept, double slope) 
-    {
-        this.x_intercept = x_intercept;
-        this.y_intercept = y_intercept;
-        this.slope = slope;
-        
-        Segments x = new Segments(this.x_intercept,this.y_intercept,this.slope);
-        
-        System.out.println("Segment 1 is : "+ x.toString());
-        //to do to pass the values and store in segments;
-        
-        
-        
-    }
-    
-    public Curve(double ...seg) 
-    {
-        for(int i = 0;i<seg.length;i++)
-        {
-            Segments ds = new Segments(this.x_intercept, this.y_intercept, this.slope);
-            ds.getValue();
-        }
-    }
-    
+	public double Evaluate_Y_at_X(double x)
+	{
+		double y = 0;
+		for(int i = 0; i < curve.size()-1; i++)
+		{
+			if(x>curve.get(i).get(0) && x <= curve.get(i+1).get(0))
+			{
+				double slope = curve.get(i).get(2);
+				double yIntercept = curve.get(i).get(1) - slope * curve.get(i).get(0);
+				y =  (slope * x) + yIntercept;
+
+			}
 
 
-    public double evaluateY(double x)
-    {
-        double slope = (double)fs.get(2) ;        
-        double x1 = x;
-        double y_intercept = (double)fs.get(1) - slope * (double)fs.get(0);
-        return slope * x1 + y_intercept;
-    }
-    
-    public Curve scaleX(Curve in,double scaleX)
-    {
-        Curve out = null;
-        return out;
-    }
+		}
+		
+		return y;
+	}
+
 }
