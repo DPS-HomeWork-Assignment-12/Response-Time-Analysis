@@ -1,47 +1,101 @@
-import java.util.ArrayList;
+	import java.util.ArrayList;
+	import java.util.List;
 
-public class Curve {
-	ArrayList<ArrayList<Double>> curve = new ArrayList<ArrayList<Double>>();
-	//private ArrayList<Double> segment = new ArrayList<Double>();
-	public Curve(ArrayList<Double> co_ordinates)
-	{	
-		int pairs = co_ordinates.size()/2;
-		int j = 0;
-		for (int i = 0; i < pairs; i++)
+	public class Curve {
+		private double x_intercept;
+		private double y_intercept;
+		private double slope;
+		List<Segments> ds = new ArrayList<>();
+		//private double[] segment;
+		
+	/*creating a curve with x-intercepts, y-intercepts and slope for different segments*/
+		public Curve(double ...seg) 
 		{
-			curve.add(new ArrayList<Double>());	
-			curve.get(i).add(0,co_ordinates.get(j));
-			curve.get(i).add(1,co_ordinates.get(j+1));
-			if (j < (co_ordinates.size() - 2))
+			int k=1;
+			int j=0;
+			for(int i = 0;i<seg.length;i++)
 			{
-				curve.get(i).add(2,((co_ordinates.get(j+1) - co_ordinates.get(j+3))/(co_ordinates.get(j) - co_ordinates.get(j+2))));
+				if (k <= seg.length/3)
+				{
+					Segments segment = new Segments(seg[j], seg[j+1], seg[j+2]);
+					//ds.add((Segments)(segment.add(seg[j], seg[j+1], seg[j+2])));
+					ds.add(segment);
+					k++;
+				}			
+				j +=3;
 			}
-			
-			j = j+2;		
 		}
-		System.out.println(curve.size());
-		System.out.println(curve);
 	
-			
-	}
-
-	public double Evaluate_Y_at_X(double x)
-	{
-		double y = 0;
-		for(int i = 0; i < curve.size()-1; i++)
+		public double evaluateX(double x)
 		{
-			if(x>curve.get(i).get(0) && x <= curve.get(i+1).get(0))
+
+			double y = 0;
+			System.out.println(ds.size());
+			for(int i = 0;i<ds.size();i++)
 			{
-				double slope = curve.get(i).get(2);
-				double yIntercept = curve.get(i).get(1) - slope * curve.get(i).get(0);
-				y =  (slope * x) + yIntercept;
-
+				
+				if(x > ds.get(i).getarrayValue(0))
+				{
+					slope = ds.get(i).getarrayValue(2);
+					y_intercept = ds.get(i).getarrayValue(1) - slope * ds.get(i).getarrayValue(0);
+					y = (slope * x) + y_intercept;
+				}
 			}
-
-
+			System.out.println("y_intercept is : " + y_intercept);
+			System.out.println("slope is : "+ slope);
+			return y;
 		}
 		
-		return y;
+		public void scaleX(double scaleX)
+		{
+			List<Segments> ds_X = new ArrayList<>();
+			//ds_X.add(0, ds.get(0));
+			System.out.print(ds_X.size());
+			//System.out.println(ds_X.get(0));
+			for(int i = 0; i<ds.size();i++)
+			{
+				//ds_X.add(i,ds.get(i));
+				ds_X.add(i, ds.get(i).scaleSegX(scaleX));
+				
+				//System.out.println(ds_X.get(i).getarrayValue(i));
+				//System.out.println(ds_X.size());
+				//System.out.println("Slope is" + slope);
+			}
+			for(int i = 0; i<(ds.size() - 1);i++)
+			{
+				slope = (evaluateX((ds.get(i+1).getarrayValue(0)) - ds_X.get(i).getarrayValue(1))/(ds_X.get(i+1).getarrayValue(0)-ds.get(i).getarrayValue(0)));
+				System.out.println("Slope is" + slope);
+				Segments x= new Segments(ds_X.get(i).getarrayValue(0), ds_X.get(i).getarrayValue(1), slope);
+				
+			}
+			
+			
+			
+			
+			
+
+			
+			//return ds_X;
+		}
+/*getting the value of each segment*/
+		public List getSegmentValue(int get) {
+			
+			return  ds.get(get).getValue();
+			
+		}
+		
+		public static void getCurve(List<Segments> ds) {
+			
+			for(int i=0;i<ds.size();i++)
+			{
+				for(int j=0;j<3;j++)
+				{
+			
+					System.out.print(" " + ds.get(i).getarrayValue(j));
+			
+				}
+			}
+		}
 	}
 
-}
+
