@@ -1,24 +1,25 @@
-import java.util.Scanner;
 import java.util.ArrayList;
+import java.util.List;
+
 public class TesterCurve {
-    public static void main(String[] args)
-    {
-		Scanner input1 = new Scanner(System.in);//input scanner
-		ArrayList<Double> co_ordinates = new ArrayList<Double>();//1D Arraylist to store input elements
-		System.out.println("Enter the co-ordinates: ");
+	public static void main(String args[])
+	{
+		List<Double> segment_val = new ArrayList<>();
+		Curve Line = new Curve(0,0,1,2,2,0.25,12);
+		System.out.println(segment_val);
+		double y = Line.evaluateYatX(38);
+		System.out.println("Y evaluated at x is "+y);
+		for(int i =0; i<Line.size();i++){
+			System.out.println(Line.getSegmentValue(i));
+		}
+		//Line.scaleX(2);
+		//for(int i=0;i<segement_val.size();i++)
+		//System.out.println("after scaling :" + segement_val.get(i));
+	//	Line.getSegmentValue(1);
+	//	Line.getSegmentValue(2);
+	//	Line.getSegmentValue(3);
+	//	Line.getSegmentValue(4);
+	}
 
-		String [] tokens = input1.nextLine().split("\\s");//store input numbers in string tokens
-
-		for (int i = 0; i < tokens.length; i++)
-		co_ordinates.add(Double.parseDouble(tokens[i])); // add input numbers to the Array
-		
-		input1.close();//close scanner object
-
-		System.out.println(co_ordinates);
-
-		Curve curve1 = new Curve(co_ordinates); // create curve object curve1
-		double yval = curve1.Evaluate_Y_at_X(2.5);//calling evaluate Y at X method, input x value is directly passed. Need to add scanner
-		System.out.println("Y value is: "+ yval);
-
-    }
 }
+
