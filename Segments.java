@@ -32,11 +32,13 @@ public class Segments extends Curve {
 
 	}
 
+
 	public void setarrayValue(int i, double x)
 	{
 		fs.set(i, x);
 
 	}	
+
 	
 
 	public Segments endElement(int k) {

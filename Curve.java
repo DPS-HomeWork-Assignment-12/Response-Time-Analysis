@@ -7,6 +7,7 @@
 		private double slope;
 		List<Segments> ds = new ArrayList<>();
 		//private double[] segment;
+
 		private double period = 0;
 	/*creating a curve with x-intercepts, y-intercepts and slope for different segments*/
 		public Curve(double ...seg) 
@@ -133,11 +134,12 @@
 				
 				//System.out.println(ds_X.get(i).getarrayValue(i));
 				//System.out.println(ds_X.size());
-				//System.out.println("Slope is" + slope);
+				//System.out.println("Slope is" + slope);Z
 			}
+
 			for(int i = 0; i<(ds.size() - 1);i++)
 			{
-				slope = (evaluateX((ds.get(i+1).getarrayValue(0)) - ds_X.get(i).getarrayValue(1))/(ds_X.get(i+1).getarrayValue(0)-ds.get(i).getarrayValue(0)));
+				slope = (evaluateYatX((ds.get(i+1).getarrayValue(0)) - ds_X.get(i).getarrayValue(1))/(ds_X.get(i+1).getarrayValue(0)-ds.get(i).getarrayValue(0)));
 				System.out.println("Slope is" + slope);
 				Segments x= new Segments(ds_X.get(i).getarrayValue(0), ds_X.get(i).getarrayValue(1), slope);
 				
@@ -152,11 +154,12 @@
 			//return ds_X;
 		}
 
+
 		public int size()
 		{
 			return ds.size();
 
-		}
+
 /*getting the value of each segment*/
 		public List getSegmentValue(int get) {
 			
