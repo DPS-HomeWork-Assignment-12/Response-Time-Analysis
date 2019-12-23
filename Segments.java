@@ -31,6 +31,14 @@ public class Segments extends Curve {
 		return fs.get(i);
 
 	}
+
+
+	public void setarrayValue(int i, double x)
+	{
+		fs.set(i, x);
+
+	}	
+
 	
 
 	public Segments endElement(int k) {
