@@ -13,6 +13,13 @@ public class Segments extends Curve {
 		this.fs.add(2, slope);
 	}
 
+	public Segments(double x_intercept,double y_intercept)
+	{
+		this.fs.add(x_intercept);
+		this.fs.add(1, y_intercept);
+		//this.fs.add(2, slope);
+	}
+
 	public Segments() {
 		// TODO Auto-generated constructor stub
 	}
@@ -32,13 +39,11 @@ public class Segments extends Curve {
 
 	}
 
-
 	public void setarrayValue(int i, double x)
 	{
 		fs.set(i, x);
 
 	}	
-
 	
 
 	public Segments endElement(int k) {

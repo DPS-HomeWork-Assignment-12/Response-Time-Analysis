@@ -1,5 +1,7 @@
 	import java.util.ArrayList;
 	import java.util.List;
+	import java.util.Collections;
+	import java.util.stream.Collectors; 
 
 	public class Curve {
 		private double x_intercept;
@@ -7,7 +9,6 @@
 		private double slope;
 		List<Segments> ds = new ArrayList<>();
 		//private double[] segment;
-
 		private double period = 0;
 	/*creating a curve with x-intercepts, y-intercepts and slope for different segments*/
 		public Curve(double ...seg) 
@@ -48,13 +49,28 @@
 			}	
 
 		}
+
+		public Curve(ArrayList<Double> curve)
+		{
+			int j=0;
+			if(curve.size() % 2 == 0)
+			{	for(int i = 1;i<=(curve.size()/2);i++)
+				{
+
+						Segments segment = new Segments(curve.get(j), curve.get(j+1));
+						ds.add(segment);		
+					j +=2;
+				}
+			}	
+
+		}
 	
 		public double evaluateYatX(double x)
 		{
 			double y = 0;
 			if(period == 0)
 			{							
-				System.out.println("number of segments: " + ds.size());
+				//System.out.println("number of segments: " + ds.size());
 				for(int i = 0;i<ds.size();i++)
 				{
 					
@@ -65,13 +81,13 @@
 						y = (slope * x) + y_intercept;
 					}
 				}
-				System.out.println("y_intercept is : " + y_intercept);
-				System.out.println("slope is : "+ slope);
+				//System.out.println("y_intercept is : " + y_intercept);
+				//System.out.println("slope is : "+ slope);
 			}
 			else
 			{
 				
-				System.out.println("number of segments: " + (ds.size()-1));
+				//System.out.println("number of segments: " + (ds.size()-1));
 				if(x/period <= 1)
 				{
 					for(int i = 0;i<ds.size();i++)
@@ -84,8 +100,8 @@
 							y = (slope * x) + y_intercept;
 						}
 					}
-					System.out.println("y_intercept is : " + y_intercept);
-					System.out.println("slope is : "+ slope);
+					//System.out.println("y_intercept is : " + y_intercept);
+					//System.out.println("slope is : "+ slope);
 				}
 				else
 				{
@@ -95,7 +111,7 @@
 					do
 					{
 						int size=ds.size();
-						System.out.println("size is " +size);
+						//System.out.println("size is " +size);
 						xVal = ds.get(size-1).getarrayValue(0)+ds.get(size-numSeg).getarrayValue(0)-ds.get(size-numSeg-1).getarrayValue(0);
 						double slopeVal = ds.get(size-numSeg).getarrayValue(2);
 						double yVal = ds.get(size-1).getarrayValue(1)+ds.get(size-numSeg).getarrayValue(1)-ds.get(size-numSeg-1).getarrayValue(1);
@@ -114,11 +130,37 @@
 							y = (slope * x) + y_intercept;
 						}
 					}
-					System.out.println("y_intercept is : " + y_intercept);
-					System.out.println("slope is : "+ slope);
+					//System.out.println("y_intercept is : " + y_intercept);
+					//System.out.println("slope is : "+ slope);
 				}
 			}
 			return y;
+		}
+
+		public static  ArrayList<Double> multiplicationOfTwoCurves(Curve c1, Curve c2)
+		{
+			
+			ArrayList<Double> al1 = new ArrayList<>();
+			for (int i = 0; i < c1.size(); i++)
+			{
+				al1.add(c1.getCellValue(i,0));
+			}
+			for (int i = 0; i < c2.size(); i++)
+			{
+				al1.add(c2.getCellValue(i,0));
+			}
+			Collections.sort(al1);
+			List<Double> al2 = al1.stream().distinct().collect(Collectors.toList()); 
+			ArrayList<Double> al3 = new ArrayList<>();
+			for(double xval : al2 )
+			{
+				al3.add(xval);
+				al3.add(c1.evaluateYatX(xval) * c2.evaluateYatX(xval));
+			}
+
+			//Curve c3 = new Curve(al3);
+			return al3; // issues with tester code while creating a curve
+
 		}
 		
 		public void scaleX(double scaleX)
@@ -134,9 +176,8 @@
 				
 				//System.out.println(ds_X.get(i).getarrayValue(i));
 				//System.out.println(ds_X.size());
-				//System.out.println("Slope is" + slope);Z
+				//System.out.println("Slope is" + slope);
 			}
-
 			for(int i = 0; i<(ds.size() - 1);i++)
 			{
 				slope = (evaluateYatX((ds.get(i+1).getarrayValue(0)) - ds_X.get(i).getarrayValue(1))/(ds_X.get(i+1).getarrayValue(0)-ds.get(i).getarrayValue(0)));
@@ -154,12 +195,15 @@
 			//return ds_X;
 		}
 
+		public double getCellValue(int Cval, int Cval1){
 
+			return  ds.get(Cval).getarrayValue(Cval1);
+		}
 		public int size()
 		{
 			return ds.size();
 
-
+		}
 /*getting the value of each segment*/
 		public List getSegmentValue(int get) {
 			
