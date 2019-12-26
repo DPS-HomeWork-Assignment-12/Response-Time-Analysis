@@ -44,6 +44,11 @@ public class Segments extends Curve {
 		fs.set(i, x);
 
 	}	
+
+	public int getSize()
+	{
+		return fs.size();
+	}
 	
 
 	public Segments endElement(int k) {
