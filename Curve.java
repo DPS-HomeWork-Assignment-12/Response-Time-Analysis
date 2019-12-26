@@ -1,5 +1,7 @@
-	import java.util.ArrayList;
+  import java.util.ArrayList;
 	import java.util.List;
+	import java.util.Collections;
+	import java.util.stream.Collectors; 
 
 	public class Curve {
 		private double x_intercept;
@@ -7,9 +9,9 @@
 		private double slope;
 		List<Segments> ds = new ArrayList<>();
 		//private double[] segment;
-
 		private double period = 0;
-	public double getY_intercept() {
+
+		public double getY_intercept() {
 			return y_intercept;
 		}
 
@@ -70,7 +72,7 @@
 						}
 						else
 						{
-							Segments segment = new Segments(period,((seg[j-1]*period) + (seg[j-2] -seg[j-1]*seg[j-3])),seg[2]);
+							Segments segment = new Segments(period,(seg[1]+(seg[j-1]*period) + (seg[j-2] -seg[j-1]*seg[j-3])),seg[2]);
 							ds.add(segment);
 							i = (seg.length/3)+1;
 						}
@@ -80,10 +82,55 @@
 			}	
 
 		}
-	
+		/**
+		 * Curve Constructor which takes an input Arraylist
+		 * Heplful when creating curve objects for the Curve methods
+		 * @param curvearray Arraylist containing elements of the curve 
+		 * @param flag	flag to check the type of arraylist, flag is 1 for multiplication of 2 curves method
+		 */
+		public Curve(ArrayList<Double> curvearray, int flag)
+		{
+			if(flag==1)
+			{
+			int j=0;
+				if(curvearray.size() % 2 == 0)
+				{	for(int i = 1;i<=(curvearray.size()/2);i++)
+					{
+
+							Segments segment = new Segments(curvearray.get(j), curvearray.get(j+1));
+							ds.add(segment);		
+						j +=2;
+					}
+				}	
+			}
+			else
+			{
+				int j=0;
+				if(curvearray.size() % 3 == 0)
+				{	for(int i = 1;i<=(curvearray.size()/3);i++)
+					{
+
+							Segments segment = new Segments(curvearray.get(j), curvearray.get(j+1),curvearray.get(j+2));
+							ds.add(segment);		
+						j +=3;
+					}
+				}	
+
+			}
+
+		}
+
+		/**
+		 * evaluateYatX To Evaluate Y value at a given X co-ordinate of any curve
+		 * @param x
+		 * @return
+		 */
 		public double evaluateYatX(double x)
 		{
 			double y = 0;
+			/*
+			*if the curve has no periodicity, implements below code
+			*/
 			if(period == 0)
 			{							
 				//System.out.println("number of segments: " + ds.size());
@@ -100,11 +147,14 @@
 				//System.out.println("y_intercept is : " + y_intercept);
 				//System.out.println("slope is : "+ slope);
 			}
+			/*
+			*If curve has periodicity, implements below code
+			*/
 			else
 			{
 				
 				//System.out.println("number of segments: " + (ds.size()-1));
-				if(x/period <= 1)
+				if(x/period <= 1)//Checking if period is before all the segments start
 				{
 					for(int i = 0;i<ds.size();i++)
 					{
@@ -119,11 +169,11 @@
 					//System.out.println("y_intercept is : " + y_intercept);
 					//System.out.println("slope is : "+ slope);
 				}
-				else
+				else//if the period starts after all the segments start, implements below
 				{
 					double xVal = 0;
 					//for(int i = 0;xVal>=x;i++)
-					int numSeg= ds.size() -1;
+					int numSeg = ds.size() -1;
 					do
 					{
 						int size=ds.size();
@@ -146,11 +196,125 @@
 							y = (slope * x) + y_intercept;
 						}
 					}
-				//	System.out.println("y_intercept is : " + y_intercept);
-				//	System.out.println("slope is : "+ slope);
+					//System.out.println("y_intercept is : " + y_intercept);
+					//System.out.println("slope is : "+ slope);
 				}
 			}
 			return y;
+		}
+			
+
+
+		/**
+		 * multiplicationOfTwoCurves Multiplies two curve objects and returns the resultant curve object
+		 * @param c1 First Curve
+		 * @param c2 Second Curve
+		 * @param timePeriod Time period until which the two curves are multiplied
+		 * @return c3 Resultant Curve
+		 */
+		public static  Curve multiplicationOfTwoCurves(Curve c1, Curve c2, double timePeriod)
+		{
+			c1.evaluateYatX(timePeriod);
+			c2.evaluateYatX(timePeriod);
+			ArrayList<Double> al1 = new ArrayList<>();
+			for (int i = 0; i < c1.size(); i++)
+				al1.add(c1.getCellValue(i,0));
+			for (int i = 0; i < c2.size(); i++)
+				al1.add(c2.getCellValue(i,0));
+			Collections.sort(al1);
+			List<Double> al2 = al1.stream().distinct().collect(Collectors.toList()); 
+			ArrayList<Double> al3 = new ArrayList<>();
+			//for(int i = 0; i < al2.size(); i++)
+			//{
+			//	al3.add(al2.get(i));
+			//	al3.add(c4.getCellValue(i,1) * c5.getCellValue(i,1));
+			//}
+			for(double xval : al2 )
+			{
+				al3.add(xval);
+				al3.add(c1.evaluateYatX(xval) * c2.evaluateYatX(xval));
+				//c4 = c1;
+				//c5 = c2;
+			}
+			Curve c3 = new Curve(al3,1);
+			return c3; 
+
+		}
+
+		/**
+		 * Ceil method implments the ceil of the curve for a given curve upto the given timeperiod and returns the resultant curve
+		 * @param curve1 
+		 * @param timePeriod
+		 * @return ceiledcurve
+		 */
+		public static Curve ceil(Curve curve1, int timePeriod)
+		{
+			ArrayList<Double> ceil1 = new ArrayList<>();
+			double slope = 0;
+			curve1.evaluateYatX(timePeriod);
+			for (int i =0; i<timePeriod;i++)
+			{
+			//double xceilval = curve1.EvaluateXatY(i);
+			if(curve1.EvaluateXatY(i) <= timePeriod)
+				{
+					ceil1.add(curve1.EvaluateXatY(i));
+					ceil1.add((double)i+1);
+					ceil1.add(slope);
+				}	
+			}
+			Curve ceiledcurve = new Curve(ceil1,2);
+			return ceiledcurve;
+		}
+
+		/**
+		 * floor method implements the floor of the curve for a given curve upto the given timeperiod and returns the resultant curve
+		 * @param curve1
+		 * @param timePeriod
+		 * @return flooredcurve
+		 */
+		public static Curve floor(Curve curve1, int timePeriod)
+		{
+			ArrayList<Double> floor1 = new ArrayList<>();
+			double slope = 0;
+			curve1.evaluateYatX(timePeriod);
+			for (int i =0; i<timePeriod;i++)
+			{
+			if(curve1.EvaluateXatY(i) <= timePeriod)
+				{
+					floor1.add(curve1.EvaluateXatY(i));
+					floor1.add((double)i);
+					floor1.add(slope);
+				}	
+			}
+			Curve flooredcurve = new Curve(floor1,2);
+			return flooredcurve;
+
+		}
+
+
+		/**
+		 * EvaluateXatY Method returns the value of X at a given Y of the input curve
+		 * @param y y co-ordinate 
+		 * @return x x co-ordinate
+		 */
+		public double EvaluateXatY(double y)//x = -m*y +c
+		{
+			double x = 0;
+			//if(period == 0)
+			//{
+			for(int i = 0;i<ds.size();i++)
+				{
+					
+					if(y > ds.get(i).getarrayValue(1))
+					{
+						slope = ds.get(i).getarrayValue(2);
+						y_intercept = ds.get(i).getarrayValue(1) - slope * ds.get(i).getarrayValue(0);
+						x = (y - y_intercept)/(slope);
+					}
+				}	
+			//}
+			return x;
+
 		}
 		
 		public void scaleX(double scaleX)
@@ -180,9 +344,8 @@
 			System.out.println(ds_X.size());
 			//return ds_X;
 		}
-		
-		
-		public List multiplyScalar(int scalar)
+
+		public List<Segments> multiplyScalar(int scalar)
 		{
 			List<Segments> ds_X = new ArrayList<>();
 			System.out.println("ds_X " + ds_X.size() + "ds_size is : " + ds.size());
@@ -200,8 +363,8 @@
 			
 			
 		}
-		
-		public static List addCurve(Curve x,Curve y) {
+
+		public static List<Segments> addCurve(Curve x,Curve y) {
 		
 			List<Segments> da = new ArrayList<>();
 			
@@ -323,7 +486,7 @@
 			return da;			
 		}
 		
-		public static List curveMax(Curve a, Curve b)
+		public static List<Segments> curveMax(Curve a, Curve b)
 		{
 			List<Segments> dm = new ArrayList<>();
 			int minSize =0;
@@ -412,7 +575,7 @@
 			return dm;			
 		}
 		
-		public static List curveMin(Curve a, Curve b)
+		public static List<Segments> curveMin(Curve a, Curve b)
 		{
 			List<Segments> dmin = new ArrayList<>();
 			int minSize =0;
@@ -497,17 +660,23 @@
 			}
 			return dmin;			
 		}
-		
-		
 
+		/*gets the value of an element from the curve arraylist*/
+		public double getCellValue(int Cval, int Cval1){
 
+			return  ds.get(Cval).getarrayValue(Cval1);
+		}
+		
+		/**
+		 * size returns the size of the curve
+		 * @return
+		 */
 		public int size()
 		{
 			return ds.size();
+
 		}
-
-
-/*getting the value of each segment*/
+		/*getting the value of each segment*/
 		public List getSegmentValue(int get) {
 			
 			return  ds.get(get).getValue();
@@ -520,11 +689,10 @@
 			{
 				for(int j=0;j<3;j++)
 				{
-			
 					System.out.print(" " + ds.get(i).getarrayValue(j));
-			
 				}
 			}
+			System.out.println();
 		}
 
 		public double getX_intercept() {
@@ -534,8 +702,5 @@
 		public void setX_intercept(double x_intercept) {
 			this.x_intercept = x_intercept;
 		}
-		
-		
 	}
-
 
