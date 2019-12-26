@@ -11,6 +11,14 @@
 		//private double[] segment;
 		private double period = 0;
 
+		
+		public double getX_intercept() {
+			return x_intercept;
+		}
+
+		public void setX_intercept(double x_intercept) {
+			this.x_intercept = x_intercept;
+		}
 		public double getY_intercept() {
 			return y_intercept;
 		}
@@ -344,7 +352,30 @@
 			System.out.println(ds_X.size());
 			//return ds_X;
 		}
-
+		
+		/*
+		public  Curve multiplyScalar(int scalar)
+		{
+			ArrayList<Double> ds_X = new ArrayList<>();
+			System.out.println("ds_X " + ds_X.size() + "ds_size is : " + ds.size());
+			
+			for(int i= 0 ; i < ds.size()-1;i++)
+			{
+				//ds_X.add(i, ds.get(i));
+				//System.out.println("Segment is" + ds_X.get(i).getValue());
+				ds_X.add(i,ds.get(i).multiplyScale(scalar));
+				System.out.println(ds_X.get(i).getValue());
+			}
+			//ds_X.add(ds.size(), );
+			System.out.println(ds_X.size());
+			return ds_X;			
+		}*/
+		/**
+		 * MultiplybyScalar of a Curve :  Multiplies the curve by  a scalar and returns the resultant curve object in terms of list of segments
+		 * @param c1 First Curve
+		 * @param c2 Second Curve
+		 * @return c3 Resultant Curve(List of segments)
+		 */
 		public List<Segments> multiplyScalar(int scalar)
 		{
 			List<Segments> ds_X = new ArrayList<>();
@@ -359,11 +390,15 @@
 			}
 			//ds_X.add(ds.size(), );
 			System.out.println(ds_X.size());
-			return ds_X;
-			
-			
+			return ds_X;		
 		}
 
+		/**
+		 * AdditionOfTwoCurves :  Adds two curve objects and returns the resultant curve object in terms of list of segments
+		 * @param c1 First Curve
+		 * @param c2 Second Curve
+		 * @return c3 Resultant Curve(List of segments)
+		 */
 		public static List<Segments> addCurve(Curve x,Curve y) {
 		
 			List<Segments> da = new ArrayList<>();
@@ -458,7 +493,7 @@
 								{
 									dx_first = y.ds.get(i+1).getarrayValue(0);
 								}
-								System.out.print("x value of first segment is" + dx);
+							//	System.out.print("x value of first segment is" + dx);
 							}
 							else
 							{
@@ -478,17 +513,23 @@
 							Segments segment = new Segments(dx , dy, dslope);
 							da.add(segment);
 						}		
-						System.out.println("y value after addition is : "+ dy);
-						System.out.println("second curve x value is " + dx2);
-						System.out.println("Slope of add curve is " + dslope);									
+						//System.out.println("y value after addition is : "+ dy);
+						//System.out.println("second curve x value is " + dx2);
+						//System.out.println("Slope of add curve is " + dslope);									
 				}
 			
 			return da;			
 		}
 		
-		public static List<Segments> curveMax(Curve a, Curve b)
+		/**
+		 * MaximumOfTwoCurves :  finds the Maximum of two curve objects and returns the resultant curve object 
+		 * @param a First Curve
+		 * @param b Second Curve
+		 * @return max Resultant Curve
+		 */		
+		public static Curve curveMax(Curve a, Curve b)
 		{
-			List<Segments> dm = new ArrayList<>();
+			ArrayList<Double> dmax = new ArrayList<>();
 			int minSize =0;
 			double dx=0,dx1_a=a.ds.get(0).getarrayValue(0),dx1_b=b.ds.get(0).getarrayValue(0);
 			double dy_a=0,dy_b=0,dy1_a=a.ds.get(0).getarrayValue(0),dy1_b=b.ds.get(0).getarrayValue(0);
@@ -520,13 +561,19 @@
 						dy_b = b.evaluateYatX(dx);
 						if(dy_a>dy_b)
 						{
-							Segments seg = new Segments(dx1_a,dy1_a,a.slope);
-							dm.add(seg);
+							//Segments seg = new Segments(dx1_a,dy1_a,a.slope);
+							//dmin.add(seg);
+							dmax.add(dx1_a);
+							dmax.add(dy1_a);
+							dmax.add(a.slope);
 						}
 						else
 						{
-							Segments seg = new Segments(dx1_b,dy1_b,b.slope);
-							dm.add(seg);
+							//Segments seg = new Segments(dx1_b,dy1_b,b.slope);
+							//dmin.add(seg);
+							dmax.add(dx1_b);
+							dmax.add(dy1_b);
+							dmax.add(b.slope);
 						}
 				}
 				else 
@@ -544,22 +591,30 @@
 						
 						if(dy_a > dy_b)
 						{
-							Segments seg = new Segments(a.ds.get(i).getarrayValue(0),a.ds.get(i).getarrayValue(1),a.ds.get(i).getarrayValue(2));
-							dm.add(seg);
+							//Segments seg = new Segments(a.ds.get(i).getarrayValue(0),a.ds.get(i).getarrayValue(1),a.ds.get(i).getarrayValue(2));
+							//dmin.add(seg);
+							dmax.add(a.ds.get(i).getarrayValue(0));
+							dmax.add(a.ds.get(i).getarrayValue(1));
+							dmax.add(a.ds.get(i).getarrayValue(2));
 						}
 						else
 						{
-							Segments seg = new Segments(b.ds.get(i).getarrayValue(0),dy1_b = b.ds.get(i).getarrayValue(1),b.ds.get(i).getarrayValue(2));
-							dm.add(seg);
+							//Segments seg = new Segments(b.ds.get(i).getarrayValue(0),b.ds.get(i).getarrayValue(1),b.ds.get(i).getarrayValue(2));
+							//dmin.add(seg);
+							dmax.add(b.ds.get(i).getarrayValue(0));
+							dmax.add(b.ds.get(i).getarrayValue(1));
+							dmax.add(b.ds.get(i).getarrayValue(2));
 						}		
 				}
 			}
-			
 			if(a.size() > minSize)
 			{
-				for (int i = minSize;i<a.size();i++)
+				for (int i = minSize;i<a.size()-1;i++)
 				{
-					dm.add(a.ds.get(i-1));
+					//dmin.add(a.ds.get(i-1));
+					dmax.add(a.ds.get(i-1).getarrayValue(0));
+					dmax.add(a.ds.get(i-1).getarrayValue(1));
+					dmax.add(a.ds.get(i-1).getarrayValue(2));
 				}
 			}
 			System.out.println("b. size is :" + b.size() + " Minsize is : "+minSize);
@@ -567,17 +622,26 @@
 			{
 				for (int i = minSize;i<b.size();i++)
 				{
-					dm.add(b.ds.get(i-1));
+					//dmin.add(b.ds.get(i-1));
+					dmax.add(b.ds.get(i-1).getarrayValue(0));
+					dmax.add(b.ds.get(i-1).getarrayValue(1));
+					dmax.add(b.ds.get(i-1).getarrayValue(2));
 				}
 			}
-
 			
-			return dm;			
+			Curve min = new Curve(dmax,2);
+			return min;			
 		}
 		
-		public static List<Segments> curveMin(Curve a, Curve b)
+		/**
+		 * MinimumOfTwoCurves :  finds the Minimum of two curve objects and returns the resultant curve object 
+		 * @param a First Curve
+		 * @param b Second Curve
+		 * @return min Resultant Curve
+		 */		
+		public static Curve curveMin(Curve a, Curve b)
 		{
-			List<Segments> dmin = new ArrayList<>();
+			ArrayList<Double> dmin = new ArrayList<>();
 			int minSize =0;
 			double dx=0,dx1_a=a.ds.get(0).getarrayValue(0),dx1_b=b.ds.get(0).getarrayValue(0);
 			double dy_a=0,dy_b=0,dy1_a=a.ds.get(0).getarrayValue(0),dy1_b=b.ds.get(0).getarrayValue(0);
@@ -609,13 +673,19 @@
 						dy_b = b.evaluateYatX(dx);
 						if(dy_a<dy_b)
 						{
-							Segments seg = new Segments(dx1_a,dy1_a,a.slope);
-							dmin.add(seg);
+							//Segments seg = new Segments(dx1_a,dy1_a,a.slope);
+							//dmin.add(seg);
+							dmin.add(dx1_a);
+							dmin.add(dy1_a);
+							dmin.add(a.slope);
 						}
 						else
 						{
-							Segments seg = new Segments(dx1_b,dy1_b,b.slope);
-							dmin.add(seg);
+							//Segments seg = new Segments(dx1_b,dy1_b,b.slope);
+							//dmin.add(seg);
+							dmin.add(dx1_b);
+							dmin.add(dy1_b);
+							dmin.add(b.slope);
 						}
 				}
 				else 
@@ -633,21 +703,30 @@
 						
 						if(dy_a < dy_b)
 						{
-							Segments seg = new Segments(a.ds.get(i).getarrayValue(0),a.ds.get(i).getarrayValue(1),a.ds.get(i).getarrayValue(2));
-							dmin.add(seg);
+							//Segments seg = new Segments(a.ds.get(i).getarrayValue(0),a.ds.get(i).getarrayValue(1),a.ds.get(i).getarrayValue(2));
+							//dmin.add(seg);
+							dmin.add(a.ds.get(i).getarrayValue(0));
+							dmin.add(a.ds.get(i).getarrayValue(1));
+							dmin.add(a.ds.get(i).getarrayValue(2));
 						}
 						else
 						{
-							Segments seg = new Segments(b.ds.get(i).getarrayValue(0),dy1_b = b.ds.get(i).getarrayValue(1),b.ds.get(i).getarrayValue(2));
-							dmin.add(seg);
+							//Segments seg = new Segments(b.ds.get(i).getarrayValue(0),b.ds.get(i).getarrayValue(1),b.ds.get(i).getarrayValue(2));
+							//dmin.add(seg);
+							dmin.add(b.ds.get(i).getarrayValue(0));
+							dmin.add(b.ds.get(i).getarrayValue(1));
+							dmin.add(b.ds.get(i).getarrayValue(2));
 						}		
 				}
 			}
 			if(a.size() > minSize)
 			{
-				for (int i = minSize;i<a.size();i++)
+				for (int i = minSize;i<a.size()-1;i++)
 				{
-					dmin.add(a.ds.get(i-1));
+					//dmin.add(a.ds.get(i-1));
+					dmin.add(a.ds.get(i-1).getarrayValue(0));
+					dmin.add(a.ds.get(i-1).getarrayValue(1));
+					dmin.add(a.ds.get(i-1).getarrayValue(2));
 				}
 			}
 			System.out.println("b. size is :" + b.size() + " Minsize is : "+minSize);
@@ -655,10 +734,15 @@
 			{
 				for (int i = minSize;i<b.size();i++)
 				{
-					dmin.add(b.ds.get(i-1));
+					//dmin.add(b.ds.get(i-1));
+					dmin.add(b.ds.get(i-1).getarrayValue(0));
+					dmin.add(b.ds.get(i-1).getarrayValue(1));
+					dmin.add(b.ds.get(i-1).getarrayValue(2));
 				}
 			}
-			return dmin;			
+			
+			Curve min = new Curve(dmin,2);
+			return min;			
 		}
 
 		/*gets the value of an element from the curve arraylist*/
@@ -682,7 +766,12 @@
 			return  ds.get(get).getValue();
 			
 		}
-		
+		/**
+		 * getCurve from list of segments : provides the curve from list of segments 
+		 * @param c1 First Curve
+		 * @param c2 Second Curve
+		 * @return c3 Resultant Curve(List of segments)
+		 */
 		public static void getCurve(List<Segments> ds) {
 			
 			for(int i=0;i<ds.size();i++)
@@ -693,14 +782,6 @@
 				}
 			}
 			System.out.println();
-		}
-
-		public double getX_intercept() {
-			return x_intercept;
-		}
-
-		public void setX_intercept(double x_intercept) {
-			this.x_intercept = x_intercept;
 		}
 	}
 

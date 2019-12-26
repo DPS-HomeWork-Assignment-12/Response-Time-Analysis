@@ -6,7 +6,7 @@ public class TesterCurve {
 	public static void main(String args[])
 	{
 		List<Segments> segment_val = new ArrayList<>();
-		Curve Line1 = new Curve(0,0,1,2,2,0.25,5);
+		Curve Line1 = new Curve(0,0,1,5);
 		//System.out.println(segment_val);
 		//double y = Line.evaluateYatX(38);
 		//System.out.println("Y evaluated at x is "+y);
@@ -20,11 +20,14 @@ public class TesterCurve {
 		//}
 
 
-		segment_val = Curve.addCurve(Line1, Line2);
-		//segment_val = Curve.curveMin(Line1, Line2);
+		//segment_val = Curve.addCurve(Line1, Line2);
+		Curve min = Curve.curveMin(Line1, Line2);
+		for(int i =0;i< min.size();i++){
+			System.out.println(min.getSegmentValue(i));
+		}
 		Curve.getCurve(segment_val);
 		
-		Curve test;
+		/*Curve test;
 		test = Curve.floor(Line1,20);
 		for(int i =0; i<test.size();i++){
 			System.out.println(test.getSegmentValue(i));
@@ -34,7 +37,7 @@ public class TesterCurve {
 		test1 = Curve.ceil(Line1,20);
 		for(int i =0; i<test1.size();i++){
 			System.out.println(test1.getSegmentValue(i));
-		}
+		}*/
 
 
 
