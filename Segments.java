@@ -64,19 +64,7 @@ public class Segments extends Curve {
 		
 	}
 
-	public Segments multiplyScale(double x) {
-		Segments fs_X = new Segments(this.fs.get(0) * x, this.fs.get(1)*x, this.fs.get(2));
-		this.fs.set(0,this.fs.get(0)*x);
-		this.fs.set(1,this.fs.get(1)*x);
-		return fs_X;
-		
-	}
 
-	public Segments add(Segments segments) {
-		//Segments fs_add = new Segments(this.fs);
-		// TODO Auto-generated method stub
-		return null;
-	}
 	
 	public Segments multiplyScale(double x) {
 		Segments fs_X = new Segments(this.fs.get(0) * x, this.fs.get(1)*x, this.fs.get(2));
