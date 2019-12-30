@@ -1,7 +1,8 @@
-  import java.util.ArrayList;
+	import java.util.ArrayList;
 	import java.util.List;
 	import java.util.Collections;
-	import java.util.stream.Collectors; 
+import java.util.EventListener;
+import java.util.stream.Collectors; 
 
 	public class Curve {
 		private double x_intercept;
@@ -661,6 +662,310 @@
 			return dmin;			
 		}
 
+		public static List<Segments> minConv(Curve minc1, Curve minc2, int timeperiod)
+		{	
+			double capT = 0;
+			double b = 0;
+			minc1.evaluateYatX(timeperiod);
+			minc2.evaluateYatX(timeperiod);
+			List<Segments> minCf = new ArrayList<>();
+			if(minc1.size() == 1 && minc2.size() == 1)
+				minCf = curveMin(minc1,minc2);
+
+			else
+			{
+			if(minc1.getCellValue(0,0) == 0 && minc1.getCellValue(0, 1) == 0 )
+			{
+				capT = minc1.getCellValue(1, 0);
+				b = minc2.getCellValue(1, 1);
+				ArrayList<Double> minCval1 = new ArrayList<Double>();
+				for(int i = 0 ;i < minc2.size();i ++)
+				{
+					minCval1.add(minc2.getCellValue(i, 0));
+					minCval1.add(minc2.getCellValue(i, 1));
+					minCval1.add(minc2.getCellValue(i, 2));
+
+				}
+
+				for (int i = 0; i < minCval1.size();i=i+3)
+				{
+					double newX = minCval1.get(i) + capT;
+					minCval1.set(i,newX );
+					//for (Double num:minCval1 )
+					//System.out.println(num);
+				}
+
+				Curve minCValshift = new Curve(minCval1, 0);				
+				minCf = curveMin(minCValshift,minc1);
+
+				for(int i = 0; i < minCf.size(); i++) {
+					System.out.println(minCf.get(i));
+				}
+
+			}
+			else if(minc2.getCellValue(0,0) == 0 && minc2.getCellValue(0, 1) == 0)
+			{
+				capT = minc2.getCellValue(1, 0);
+				b = minc2.getCellValue(1, 1);
+				ArrayList<Double> minCval1 = new ArrayList<Double>();
+				for(int i = 0 ;i < minc1.size();i ++)
+				{
+					minCval1.add(minc1.getCellValue(i, 0));
+					minCval1.add(minc1.getCellValue(i, 1));
+					minCval1.add(minc1.getCellValue(i, 2));
+
+				}
+
+				for (int i = 0; i < minCval1.size();i=i+3)
+				{
+					double newX = minCval1.get(i) + capT;
+					minCval1.set(i,newX );
+					//for (Double num:minCval1 )
+					//System.out.println(num);
+				}
+
+				Curve minCValshift = new Curve(minCval1, 0);
+
+				//for(int i =0; i<minCValshift.size();i++){System.out.println(minCValshift.getSegmentValue(i));}
+
+				minCf = curveMin(minCValshift,minc2);
+
+				for(int i = 0; i < minCf.size(); i++) {
+					System.out.println(minCf.get(i));
+				}
+
+			}
+
+			// ArrayList<Double> minCval1 = new ArrayList<Double>();
+			// ArrayList<Double> minCval2 = new ArrayList<Double>();
+
+			// minCval.add(0,0.0);
+			// minCval.add(1, 0.0);
+			// minCval.add(2,0.0);
+			// for(double t = capT; t <= timeperiod; t = t + 0.01)
+			// {
+			// 	if(t >= capT)
+			// 	{
+			// 		yValue = Math.min(minc1.evaluateYatX(t),minc2.evaluateYatX(t));
+			// 		mincslope = yValue / t; 
+			// 		if(mincslope == 5)
+			// 	}
+			// }
+
+						
+			//Curve minCr = new Curve(minCf, 0);
+		}
+			return minCf;
+
+
+		}
+
+
+		public static List<Segments> maxConv(Curve maxc1, Curve maxc2, int timeperiod)
+		{
+			double capT = 0;
+			double b = 0;
+			maxc1.evaluateYatX(timeperiod);
+			maxc2.evaluateYatX(timeperiod);
+			List<Segments> maxCf = new ArrayList<>();
+			if(maxc1.size() == 1 && maxc2.size() == 1)
+				maxCf = curveMax(maxc1,maxc2);
+
+			else
+			{
+			if(maxc1.getCellValue(0,0) == 0 && maxc1.getCellValue(0, 1) == 0 )
+			{
+				//capT = minc1.getCellValue(1, 0);
+				b = maxc2.getCellValue(1, 1);
+				ArrayList<Double> maxCval1 = new ArrayList<Double>();
+				for(int i = 0 ;i < maxc1.size();i ++)
+				{
+					maxCval1.add(maxc1.getCellValue(i, 0));
+					maxCval1.add(maxc1.getCellValue(i, 1));
+					maxCval1.add(maxc1.getCellValue(i, 2));
+
+				}
+
+				for (int i = 3; i < maxCval1.size();i=i+3)
+				{
+					double newX = maxCval1.get(i) - b;
+					maxCval1.set(i,newX );
+					//for (Double num:minCval1 )
+					//System.out.println(num);
+				}
+
+				Curve maxCValshift = new Curve(maxCval1, 0);				
+				maxCf = curveMax(maxCValshift,maxc2);
+
+				for(int i = 0; i < maxCf.size(); i++) {
+					System.out.println(maxCf.get(i));
+				}
+
+			}
+			else if(maxc2.getCellValue(0,0) == 0 && maxc2.getCellValue(0, 1) == 0)
+			{
+				//capT = maxc2.getCellValue(1, 0);
+				b = maxc1.getCellValue(1, 1);
+				ArrayList<Double> maxCval1 = new ArrayList<Double>();
+				for(int i = 0 ;i < maxc2.size();i ++)
+				{
+					maxCval1.add(maxc2.getCellValue(i, 0));
+					maxCval1.add(maxc2.getCellValue(i, 1));
+					maxCval1.add(maxc2.getCellValue(i, 2));
+
+				}
+
+				for (int i = 0; i < maxCval1.size();i=i+3)
+				{
+					double newX = maxCval1.get(i) + capT;
+					maxCval1.set(i,newX );
+					//for (Double num:minCval1 )
+					//System.out.println(num);
+				}
+
+				Curve maxCValshift = new Curve(maxCval1, 0);
+
+				//for(int i =0; i<minCValshift.size();i++){System.out.println(minCValshift.getSegmentValue(i));}
+
+				maxCf = curveMax(maxCValshift,maxc1);
+
+				for(int i = 0; i < maxCf.size(); i++) {
+					System.out.println(maxCf.get(i));
+				}
+			}	
+			else 
+			{
+				System.out.println("input curves must start from x = 0");
+			}
+		}
+		return maxCf;
+		}
+		
+
+		public static Curve minDConv(Curve minc1, Curve minc2, int timeperiod)
+		{
+			double capT = 0;
+			double b = 0;
+			minc1.evaluateYatX(timeperiod);
+			minc2.evaluateYatX(timeperiod);
+			//List<Segments> maxCf = new ArrayList<>();
+			ArrayList<Double> minCval1 = new ArrayList<Double>();
+			
+			if(minc1.getCellValue(0,0) == 0 && minc1.getCellValue(0, 1) != 0 )
+			{
+				capT = minc2.getCellValue(1, 0);
+				b = minc1.evaluateYatX(capT);
+				
+				for(int i = 0 ;i < minc1.size();i ++)
+				{
+					minCval1.add(minc1.getCellValue(i, 0));
+					minCval1.add(minc1.getCellValue(i, 1));
+					minCval1.add(minc1.getCellValue(i, 2));
+
+				}
+
+				for (int i = 0; i < minCval1.size();i=i+3)
+				{
+					//double newX = minCval1.get(i) - capT;
+					if(minCval1.get(i) == 0)
+					minCval1.set(i+1,b );
+					else 
+					{
+					double newX = minCval1.get(i) - capT;
+					minCval1.set(i,newX );
+					}
+
+					//for (Double num:minCval1 )
+					//System.out.println(num);
+				}
+
+				//Curve minCValshift = new Curve(minCval1, 0);				
+				//minCf = curveMin(minCValshift,minc1);
+
+				//for(int i = 0; i < minCf.size(); i++) {
+				//	System.out.println(minCf.get(i));
+				//}
+
+			}
+			else if(minc2.getCellValue(0,0) == 0 && minc2.getCellValue(0, 1) != 0)
+			{
+				capT = minc1.getCellValue(1, 0);
+				b = minc2.evaluateYatX(capT);
+				//ArrayList<Double> minCval1 = new ArrayList<Double>();
+				for(int i = 0 ;i < minc2.size();i ++)
+				{
+					minCval1.add(minc2.getCellValue(i, 0));
+					minCval1.add(minc2.getCellValue(i, 1));
+					minCval1.add(minc2.getCellValue(i, 2));
+
+				}
+
+				for (int i = 0; i < minCval1.size();i=i+3)
+				{
+					if(minCval1.get(i) == 0)
+						minCval1.set(i+1,b );
+					else 
+					{
+						double newX = minCval1.get(i) - capT;
+						minCval1.set(i,newX );
+					}
+					//for (Double num:minCval1 )
+					//System.out.println(num);
+				}
+
+				//Curve minCValshift = new Curve(minCval1, 0);
+
+				//for(int i =0; i<minCValshift.size();i++){System.out.println(minCValshift.getSegmentValue(i));}
+
+				//minCf = curveMin(minCValshift,minc2);
+
+				//for(int i = 0; i < minCf.size(); i++) {
+				//	System.out.println(minCf.get(i));
+				//}
+			}
+			Curve minCValshift = new Curve(minCval1, 0);
+			return minCValshift;	
+		}
+
+		public static Curve maxDConv(Curve maxc1, Curve maxc2, int timeperiod)
+		{
+			double capT = 0;
+			double b = 0;
+			maxc1.evaluateYatX(timeperiod);
+			maxc2.evaluateYatX(timeperiod);
+			//List<Segments> maxCf = new ArrayList<>();
+			ArrayList<Double> maxCval1 = new ArrayList<Double>();
+			
+			if(maxc1.getCellValue(0,0) == 0 && maxc1.getCellValue(0, 1) == 0 )
+			{
+				capT = maxc1.getCellValue(1, 0);
+				b = maxc2.evaluateYatX(capT);
+				
+				for(int i = 0 ;i < maxc2.size();i ++)
+				{
+					maxCval1.add(maxc2.getCellValue(i, 0));
+					maxCval1.add(maxc2.getCellValue(i, 1));
+					maxCval1.add(maxc2.getCellValue(i, 2));
+
+				}
+
+				for (int i = 0; i < maxCval1.size();i=i+3)
+				{
+					//double newX = minCval1.get(i) - capT;
+					if(maxCval1.get(i) == 0)
+					maxCval1.set(i+1,0-b );
+					else 
+					{
+					double newX = maxCval1.get(i) - capT;
+					maxCval1.set(i,newX );
+					maxCval1.set(i+1,(maxCval1.get(i-1) * newX - b ) );
+					}
+				}
+			}
+			Curve maxCValshift = new Curve(maxCval1,0);
+			return maxCValshift;
+		}			
+
 		/*gets the value of an element from the curve arraylist*/
 		public double getCellValue(int Cval, int Cval1){
 
@@ -703,4 +1008,5 @@
 			this.x_intercept = x_intercept;
 		}
 	}
+
 
