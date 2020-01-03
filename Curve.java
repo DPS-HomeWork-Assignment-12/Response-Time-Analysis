@@ -1,8 +1,8 @@
 	import java.util.ArrayList;
 	import java.util.List;
 	import java.util.Collections;
-import java.util.EventListener;
-import java.util.stream.Collectors; 
+	import java.util.EventListener;
+	import java.util.stream.Collectors; 
 
 	public class Curve {
 		private double x_intercept;
