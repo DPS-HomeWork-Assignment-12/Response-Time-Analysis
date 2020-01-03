@@ -64,8 +64,6 @@ public class Segments extends Curve {
 		
 	}
 
-
-	
 	public Segments multiplyScale(double x) {
 		Segments fs_X = new Segments(this.fs.get(0) * x, this.fs.get(1)*x, this.fs.get(2));
 		this.fs.set(0,this.fs.get(0)*x);
