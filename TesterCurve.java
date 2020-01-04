@@ -1,67 +1,67 @@
+/********************************************************************
+ *
+ * To test the functions present in the curve class
+ * 
+ ********************************************************************/
 public class TesterCurve {
 	public static void main(String args[])
 	{
-		//List<Segments> segment_val = new ArrayList<>();
+		
+		/*Giving input for first curve*/
 		Curve Line1 = new Curve(0,1,0.25,10,3.5,1);
-		//System.out.println(segment_val);
-		//System.out.println("Y evaluated at x is "+y);
-		//for(int i =0; i<Line1.size();i++){
-		//	System.out.println(Line1.getSegmentValue(i));
-		//}
-		Curve Line2 = new Curve(0,0,0,5,0,1);	
-		//for(int i =0; i<Line2.size();i++){
-		//	System.out.println(Line2.getSegmentValue(i));
-		//}
+		/*Giving input for second curve*/
+		Curve Line2 = new Curve(0,0,0,5,0,1);
 
-		Curve test1;
-		test1 = Curve.maxDConv(Line2,Line1,20);
-		//System.out.println(test1);
-		 
-		for(int i =0; i<test1.size();i++){
-		System.out.println(test1.getSegmentValue(i));
-		}
-
-		//segment_val = Curve.curveMin(Line1, Line2);
-		//Curve.printCurve(segment_val);
 		
+		/*evaluateYatX function*/
+		double y = Line1.evaluateYatX(25);
+		System.out.println("y value is :" + y);
 		
-		// Curve test1;
-		// test1 = Curve.ceil(Line1,20);
-		// for(int i =0; i<test1.size();i++){
-		// 	System.out.println(test1.getSegmentValue(i));
-		// }
-
-
-		//segment_val = Curve.minConv(Line1,Line2,20);
-		//Curve.getCurve(segment_val);
-		//Curve mul1;
-		//mul1 = Curve.multiplicationOfTwoCurves(Line,Line1,20);
-		//for(int i =0; i<mul1.size();i++){
-		//	System.out.println(mul1.getSegmentValue(i));
-		//}
-
-		//double y1 = Line.evaluateYatX(15);
-		//System.out.println("Y1 evaluated at x is "+y1);
-
-		//double y = Line1.evaluateYatX(12);
-		//System.out.println("Y evaluated at x is "+y);
-
-		//for(int i =0; i<Line1.size();i++){
-		//	System.out.println(Line1.getSegmentValue(i));
-		//}
-		//for(int i =0; i<Line.size();i++){
-		//	System.out.println(Line.getSegmentValue(i));
-		//}
-
-		//Line.scaleX(2);
-		//for(int i=0;i<segement_val.size();i++);
-		//System.out.println("after scaling :" + segement_val.get(i));
-
-
-	//	Line.getSegmentValue(1);
-	//	Line.getSegmentValue(2);
-	//	Line.getSegmentValue(3);
-	//	Line.getSegmentValue(4);
+		/*evaluateXatY function*/
+		double x = Line2.EvaluateXatY(20);
+		System.out.println("x value is :" + x);
+		
+		/*scaleOnX function*/		
+		Curve test1 = Curve.scaleOnX(Line1, 1.5);
+		
+		/*scaleOnY function*/
+		Curve test2 = Curve.scaleOnY(Line1, 2);
+		
+		/*multiplybyScalar function*/
+		Curve test3 = Curve.multiplyScalar(Line1, 2);
+		
+		/*Addition of two curves*/
+		Curve test4 = Curve.addCurve(Line1, Line2, 20);
+		
+		/*Multiplication of two curves*/
+		Curve test5 = Curve.multiplicationOfTwoCurves(Line1, Line2, 15);
+		
+		/*Affine function*/
+		Curve test6 = Curve.affine(Line1, 0.5, 2);
+		
+		/*pseudo inverse function*/
+		Curve test7 = Curve.Invert(Line2);
+		
+		/*Ceil function*/
+		Curve test8 = Curve.ceil(Line1, 20);
+		
+		/*Floor function*/
+		Curve test9 = Curve.floor(Line2, 10);
+		
+		/*Min-plus Convolution*/
+		Curve test10 = Curve.minConv(Line1, Line2, 20);
+		
+		/*Min-plus DeConvolution*/
+		Curve test11 = Curve.minDConv(Line1, Line2, 20);
+		
+		/*Max-plus Convolution*/
+		Curve test12 = Curve.maxConv(Line1, Line2, 20);
+		
+		/*Max-plus DeConvolution*/
+		Curve test13 = Curve.maxDConv(Line1, Line2, 20);
+		
+		/*Printing the resultant curve*/
+		Curve.printCurve(test10);	
 	}
 
 }
