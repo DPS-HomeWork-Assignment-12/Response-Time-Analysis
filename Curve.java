@@ -1,3 +1,4 @@
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -6,7 +7,7 @@ import java.util.stream.Collectors;
 /**
  * Curve class consists basic operations which can be performed on curves along with minplus and maxplus operations
  * 
- * @version 1.20200103
+ * @version 1.0
  */
 		public class Curve {
 		private double x_intercept;
@@ -263,10 +264,15 @@ import java.util.stream.Collectors;
 			}
 			return y;
 		}
-			
+		
+		/**
+		 * evaluateSatX To Evaluate slope value at a given X co-ordinate of any curve
+		 * @param x Co-ordinate
+		 * @return slope value at the given x co-ordinate on the curve
+		 */
 		public double evaluateSatX(double x)
 		{
-			double y = evaluateYatX(x);
+			double y = evaluateYatX(x);//Calculating Y value at the given X value.
 			for(int i = 0;i<ds.size();i++)
 			{
 				if(y >= ds.get(i).getarrayValue(1))//if condition to identify the segment the y value belongs to
@@ -274,7 +280,7 @@ import java.util.stream.Collectors;
 					slope = ds.get(i).getarrayValue(2); //get the slope value from the corresponding segment
 					
 				}
-				System.out.println("x value: "+ x + " y value: "+ y + " slope: "+ slope);
+				//System.out.println("x value: "+ x + " y value: "+ y + " slope: "+ slope);
 			}
 			return slope;	 
 
@@ -290,7 +296,7 @@ import java.util.stream.Collectors;
 		public static  Curve multiplicationOfTwoCurves(Curve c1, Curve c2, double timePeriod)
 		{
 			c1.evaluateYatX(timePeriod); 	// Using evaluateYatX method to expand the arraylist till timeperiod
-			c2.evaluateYatX(timePeriod);	// Using evaluateYatX method to expand the arraylist till timeperiod
+			c2.evaluateYatX(timePeriod); 	// Using evaluateYatX method to expand the arraylist till timeperiod
 			ArrayList<Double> al1 = new ArrayList<>(); // new arraylist to store the the x co-ordinates
 			/*
 			*for loop to get the x-co-ordinates from the first curve and store them in an arraylist
@@ -304,7 +310,7 @@ import java.util.stream.Collectors;
 			for (int i = 0; i < c2.size(); i++)
 				al1.add(c2.getCellValue(i,0));
 
-		
+			al1.add(IntersectionOfCurves(c1,c2,timePeriod));//checking and adding intersection point of two curves.
 			Collections.sort(al1);//sort the elements in the arraylist in ascending order
 			List<Double> al2 = al1.stream().distinct().collect(Collectors.toList()); //remove duplicate elements in the arraylist
 			ArrayList<Double> al3 = new ArrayList<>(); //new arraylist to store resultant values of multplication of the curves
@@ -371,7 +377,6 @@ import java.util.stream.Collectors;
 			}
 			Curve flooredcurve = new Curve(floor1,2); //create the curve object with input as the floor1 arraylist containing x,y and slope values of each segment
 			return flooredcurve;
-
 		}
 
 
@@ -396,36 +401,235 @@ import java.util.stream.Collectors;
 
 		}
 		
-
-		public void scaleX(double scaleX)
+		/**
+		 * scaleOnX To scale the curve on X axis by a scaling factor.
+		 * @param curve1 Input Curve
+		 * @param scalingFactor Factor by which the X co-ordinates are scaled.
+		 * @return Scaled Curve on X axis
+		 */
+		public  static Curve scaleOnX(Curve curve1, double scalingFactor)
 		{
-			List<Segments> ds_X = new ArrayList<>();
-			//ds_X.add(0, ds.get(0));
-			System.out.print(ds_X.size());
-			//System.out.println(ds_X.get(0));
-			for(int i = 0; i<ds.size();i++)
+			Curve scaledCurve;//Initialize Curve object to store the result curve
+			double slope1;//Initialize variable to store slope values
+			ArrayList<Double> ScaleOnX = new ArrayList<>(); //Initialize an array list for easy computation.
+			
+			/*
+			 * For loop to store all values of the input curve into the arraylist
+			 */
+			for (int i = 0; i < curve1.size(); i++)
 			{
-				//ds_X.add(i,ds.get(i));
-				ds_X.add(i, ds.get(i).scaleSegX(scaleX));
-				
-				//System.out.println(ds_X.get(i).getarrayValue(i));
-				//System.out.println(ds_X.size());
-				//System.out.println("Slope is" + slope);Z
+			ScaleOnX.add(curve1.getCellValue(i,0));
+			ScaleOnX.add(curve1.getCellValue(i,1));
+			ScaleOnX.add(curve1.getCellValue(i,2));
 			}
 
-			for(int i = 0; i<(ds.size() - 1);i++)
+			/*
+			 * Multiply all the x values by the scaling factor
+			 */
+			for(int i =0; i <ScaleOnX.size(); i = i+3)
 			{
-				slope = (evaluateYatX((ds.get(i+1).getarrayValue(0)) - ds_X.get(i).getarrayValue(1))/(ds_X.get(i+1).getarrayValue(0)-ds.get(i).getarrayValue(0)));
-				System.out.println("Slope is" + slope);
-				Segments x= new Segments(ds_X.get(i).getarrayValue(0), ds_X.get(i).getarrayValue(1), slope);
-				
+				ScaleOnX.set(i, ScaleOnX.get(i) * scalingFactor );
 			}
-			
-			System.out.println(ds_X.size());
-			//return ds_X;
+
+			/*
+			 * For computing the new slope values and storing them
+			 */
+			for(int i= 2; i<ScaleOnX.size(); i = i+3 )
+			{
+				if(i<=ScaleOnX.size()-4)//condition to check if it is not the last segment
+				{
+					/*
+					 * slope is calculated using mathematical approach of 'dy/dx'.
+					 */
+					slope1 = (ScaleOnX.get(i+2) - ScaleOnX.get(i-1) )/(ScaleOnX.get(i+1) - ScaleOnX.get(i-2));
+					ScaleOnX.set(i, slope1);
+				}
+				else //If last segement, compute slope by below process
+				{
+					/*
+					 * slope is calculated by computing the next x and y values at an increment of 0.01 and then use dy/dx.
+					 */
+					slope1 = (ScaleOnX.get(i-1) - curve1.evaluateYatX(curve1.getCellValue(curve1.size()-1, 0)+0.01))/(ScaleOnX.get(i-2) - (curve1.getCellValue(curve1.size()-1, 0)+0.01)*scalingFactor);
+					ScaleOnX.set(i, slope1);
+				}
+			}
+			scaledCurve = new Curve(ScaleOnX, 2);//Constructor to store the elements in the curve object
+			return scaledCurve;
 		}
 
+		/**
+		 * scaleOnY To scale the curve on Y axis by a scaling factor.
+		 * @param curve1 Input Curve
+		 * @param scalingFactor Factor by which the Y co-ordinates are scaled.
+		 * @return Scaled Curve on Y axis
+		 */
+		public  static Curve scaleOnY(Curve curve1, double scalingFactor)
+		{
+			Curve scaledCurve;//Initialize Curve object to store the result curve
+			double slope1;//Initialize variable to store slope values
+			ArrayList<Double> ScaleOnY = new ArrayList<>(); //Initialize an array list for  computation.
+			
+			/*
+			 * For loop to store all values of the input curve into the arraylist
+			 */
+			for (int i = 0; i < curve1.size(); i++)
+			{
+			ScaleOnY.add(curve1.getCellValue(i,0));
+			ScaleOnY.add(curve1.getCellValue(i,1));
+			ScaleOnY.add(curve1.getCellValue(i,2));
+			}
+
+			/*
+			 * Multiply all the y values by the scaling factor
+			 */
+			for(int i =1; i <ScaleOnY.size(); i = i+3)
+			{
+				ScaleOnY.set(i, ScaleOnY.get(i) * scalingFactor );
+			}
+
+			/*
+			 * For computing the new slope values and storing them
+			 */
+			for(int i= 2; i<ScaleOnY.size(); i = i+3 )
+			{
+				if(i<=ScaleOnY.size()-4)//condition to check if it is not the last segment
+				{
+					/*
+					 * slope is calculated using mathematical approach of 'dy/dx'.
+					 */
+					slope1 = (ScaleOnY.get(i-1) - ScaleOnY.get(i+2))/(ScaleOnY.get(i-2) - ScaleOnY.get(i+1));
+					ScaleOnY.set(i, slope1);
+				}
+				else //If last segement, compute slope by below process
+				{
+					/*
+					 * slope is calculated by computing the next x and y values at an increment of 0.01 and then use dy/dx.
+					 */
+					slope1 = ((curve1.evaluateYatX(curve1.getCellValue(curve1.size()-1, 0)+0.01))*scalingFactor - ScaleOnY.get(i-1))/((curve1.getCellValue(curve1.size()-1, 0)+0.01)- ScaleOnY.get(i-2));
+					ScaleOnY.set(i, slope1);
+				}
+			}
+			scaledCurve = new Curve(ScaleOnY, 2); //Constructor to store the elements in the curve object
+			return scaledCurve;
+		}
 		
+
+		/**
+		 * Invert To compute the inverse of the given curve.
+		 * @param curve1 Input Curve
+		 * @return Inverted curve
+		 */
+		public static Curve Invert(Curve curve1)
+		{
+			Curve Inverted;//Initialize Curve object to store the result curve
+			double slope1;//Initialize variable to store slope values
+			ArrayList<Double> Invert = new ArrayList<>();  //Initialize an array list for computation.
+			
+			/*
+			 * If condition to check if the inverted curve should
+			 * start at x and y co-ordinates (0,0)
+			 */
+			if(curve1.getCellValue(0, 1)!=0)
+			{
+				Invert.add(0,0.0);
+				Invert.add(0,0.0);
+				Invert.add(0,0.0);
+			}
+
+			/*
+			 * Store the values in the Arraylist by inverting x and y values
+			 */
+			for (int i = 0; i < curve1.size(); i++)
+			{
+				Invert.add(curve1.getCellValue(i,1));
+				Invert.add(curve1.getCellValue(i,0));
+				Invert.add(curve1.getCellValue(i,2));
+			}
+
+			/*
+			 * For computing the new slope values and storing them
+			 */
+			for(int i= 2; i<Invert.size(); i = i+3 )
+			{
+				if(i<=Invert.size()-4)//condition to check if it is not the last segment
+				{
+					/*
+					 * slope is calculated using mathematical approach of 'dy/dx'.
+					 */
+					slope1 = (Invert.get(i+2) - Invert.get(i-1))/(Invert.get(i+1) - Invert.get(i-2));
+					Invert.set(i, slope1);
+				}
+				else//If last segement, compute slope by below process
+				{
+					/*
+					 * slope is calculated by computing the next x and y values at an increment of 0.01 and then use dy/dx.
+					 */
+					slope1 = ( Invert.get(i-1) - (curve1.getCellValue(curve1.size()-1, 0)+0.01))/(Invert.get(i-2) - (curve1.evaluateYatX(curve1.getCellValue(curve1.size()-1, 0)+0.01)));
+					Invert.set(i, slope1);
+				}
+			}
+			Inverted = new Curve(Invert, 2);//Constructor to store the elements in the curve object
+			return Inverted;
+		}
+
+		public static Curve affine(Curve curve1, double scalingFactor, double x_offset)
+		{
+			Curve affine1;
+			affine1= scaleOnX(curve1, scalingFactor);
+			for(int i =0; i<affine1.size();i++){
+				System.out.println(affine1.getSegmentValue(i));
+			 }
+			Curve affine2;
+			affine2 = shiftOnX(affine1,x_offset);
+			return affine2;
+		}
+
+		public static Curve shiftOnX(Curve curve1, double x_offset)
+		{
+			
+			ArrayList<Double> Shifter = new ArrayList<>();
+			Curve shifted;
+			if(x_offset>0)
+			{
+				Shifter.add(0.0);
+				Shifter.add(0.0);
+				Shifter.add(0.0);
+				for (int i = 0; i < curve1.size(); i++)
+				{
+					if(curve1.getCellValue(i,1) ==0 && curve1.getCellValue(i,2)==0)
+					{
+
+					}
+					else 
+					{
+						Shifter.add(curve1.getCellValue(i,0) + x_offset);
+						Shifter.add(curve1.getCellValue(i,1));
+						Shifter.add(curve1.getCellValue(i,2));
+					}	
+				}								
+			}
+			else
+			{
+				for (int i = 0; i < curve1.size(); i++)
+				{
+					if(curve1.getCellValue(i,0) + x_offset < 0)
+					{
+						Shifter.add(0.0);
+						Shifter.add(curve1.evaluateYatX(Math.abs(x_offset)));
+						Shifter.add(curve1.getCellValue(i,2));
+					}
+					else
+					{
+					Shifter.add(curve1.getCellValue(i,0) + x_offset);
+					Shifter.add(curve1.getCellValue(i,1));
+					Shifter.add(curve1.getCellValue(i,2));
+					}
+				}			
+			}
+			shifted = new Curve(Shifter,2);
+			return shifted;
+		}
+
 		public List<Segments> multiplyScalar(int scalar)
 		{
 			List<Segments> ds_X = new ArrayList<>();
@@ -463,7 +667,8 @@ import java.util.stream.Collectors;
 			for (int i = 0; i < c2.size(); i++)
 				al1.add(c2.getCellValue(i,0));
 
-		
+			
+
 			Collections.sort(al1);//sort the elements in the arraylist in ascending order
 			List<Double> al2 = al1.stream().distinct().collect(Collectors.toList()); //remove duplicate elements in the arraylist
 			ArrayList<Double> al3 = new ArrayList<>(); //new arraylist to store resultant values of multplication of the curves
@@ -502,6 +707,8 @@ import java.util.stream.Collectors;
 			for (int i = 0; i < c2.size(); i++)
 				al1.add(c2.getCellValue(i,0));
 
+			al1.add(IntersectionOfCurves(c1,c2,timePeriod));	
+
 		
 			Collections.sort(al1);//sort the elements in the arraylist in ascending order
 			List<Double> al2 = al1.stream().distinct().collect(Collectors.toList()); //remove duplicate elements in the arraylist
@@ -535,110 +742,88 @@ import java.util.stream.Collectors;
 			return c3; 
 		}		
 		
-		public static List<Segments> curveMin(Curve a, Curve b)
+		public static double IntersectionOfCurves(Curve curve1, Curve curve2, double timeperiod)
 		{
-			List<Segments> dmin = new ArrayList<>();
-			int minSize =0;
-			double dx=0,dx1_a=a.ds.get(0).getarrayValue(0),dx1_b=b.ds.get(0).getarrayValue(0);
-			double dy_a=0,dy_b=0,dy1_a=a.ds.get(0).getarrayValue(0),dy1_b=b.ds.get(0).getarrayValue(0);
-			System.out.println("x size is "+a.size());
-			
-			if(a.size() < b.size())
+			double Ipoint = 0;
+			final double THRESHOLD = .01;
+			for(double i = 0; i<timeperiod; i = i+ 0.01 )
 			{
-				minSize = a.size();
-			}
-			else
-			{
-				minSize = b.size();
-			}
-			
-			for(int i=0;i<minSize - 1;i++)
-			{
-				if(minSize == 2)
-				{					
-					if(a.period > b.period)
-					{
-						dx = b.period;
-					}
-					else
-					{
-						dx=a.period;
-					}
-					
-						dy_a = a.evaluateYatX(dx);
-						dy_b = b.evaluateYatX(dx);
-						if(dy_a<dy_b)
-						{
-							Segments seg = new Segments(dx1_a,dy1_a,a.slope);
-							dmin.add(seg);
-						}
-						else
-						{
-							Segments seg = new Segments(dx1_b,dy1_b,b.slope);
-							dmin.add(seg);
-						}
-				}
-				else 
-				{					
-						if(a.ds.get(i+1).getarrayValue(0) > b.ds.get(i+1).getarrayValue(0))
-						{
-							dx = b.ds.get(i+1).getarrayValue(0);
-						}
-						else
-						{
-							dx = a.ds.get(i+1).getarrayValue(0);
-						}
-						dy_a = a.evaluateYatX(dx);
-						dy_b = b.evaluateYatX(dx);
-						
-						if(dy_a < dy_b)
-						{
-							Segments seg = new Segments(a.ds.get(i).getarrayValue(0),a.ds.get(i).getarrayValue(1),a.ds.get(i).getarrayValue(2));
-							dmin.add(seg);
-						}
-						else
-						{
-							Segments seg = new Segments(b.ds.get(i).getarrayValue(0),dy1_b = b.ds.get(i).getarrayValue(1),b.ds.get(i).getarrayValue(2));
-							dmin.add(seg);
-						}		
-				}
-			}
-			if(a.size() > minSize)
-			{
-				for (int i = minSize;i<a.size();i++)
+				if(Math.abs(curve1.evaluateYatX(i) - curve2.evaluateYatX(i)) < THRESHOLD)
 				{
-					dmin.add(a.ds.get(i-1));
+					Ipoint = i;
 				}
 			}
-			System.out.println("b. size is :" + b.size() + " Minsize is : "+minSize);
-			if(b.size() > minSize)
-			{
-				for (int i = minSize;i<b.size();i++)
-				{
-					dmin.add(b.ds.get(i-1));
-				}
-			}
-			return dmin;			
+			DecimalFormat newFormat = new DecimalFormat("##########.###");
+			double twoDecimal =  Double.valueOf(newFormat.format(Ipoint));
+			return twoDecimal;
 		}
 
+		public static  Curve curveMin(Curve c1, Curve c2, double timePeriod)
+		{
+			c1.evaluateYatX(timePeriod); 	// Using evaluateYatX method to expand the arraylist till timeperiod
+			c2.evaluateYatX(timePeriod);	// Using evaluateYatX method to expand the arraylist till timeperiod
+			ArrayList<Double> al1 = new ArrayList<>(); // new arraylist to store the the x co-ordinates
+			/*
+			*for loop to get the x-co-ordinates from the first curve and store them in an arraylist
+			*/
+			for (int i = 0; i < c1.size(); i++)
+				al1.add(c1.getCellValue(i,0));
 
+			/*
+			*for loop to get the x-co-ordinates from the second curve and store them in an arraylist
+			*/
+			for (int i = 0; i < c2.size(); i++)
+				al1.add(c2.getCellValue(i,0));
 
-		public static List<Segments> minConv(Curve minc1, Curve minc2, int timeperiod)
+			al1.add(IntersectionOfCurves(c1,c2,timePeriod));
+			Collections.sort(al1);//sort the elements in the arraylist in ascending order
+			List<Double> al2 = al1.stream().distinct().collect(Collectors.toList()); //remove duplicate elements in the arraylist
+			ArrayList<Double> al3 = new ArrayList<>(); //new arraylist to store resultant values of multplication of the curves
+
+			for(double xval : al2 )//loop through each element of arraylist holding unique x values
+			//for (int i = 0; i )
+			{
+				al3.add(xval);// add the x value to the new arraylist
+
+				/*
+				*add the resultant y value to the new arraylist by 
+				*multiplying the corresponding y values at the given x value of both curves
+				*/
+				if(c1.evaluateYatX(xval) <= c2.evaluateYatX(xval) )
+				{
+					al3.add(c1.evaluateYatX(xval));
+					al3.add(c1.evaluateSatX(xval));
+
+				}
+				
+				else
+				{
+					al3.add(c2.evaluateYatX(xval));
+					al3.add(c2.evaluateSatX(xval));
+
+				}
+				
+			}
+			Curve c3 = new Curve(al3,2); // new curve object created with the input as the final resultant arraylist
+			return c3; 
+		}		
+
+		public static Curve minConv(Curve minc1, Curve minc2, int timeperiod)
 		{	
 			double capT = 0;
-			double b = 0;
+			//double b = 0;
 			minc1.evaluateYatX(timeperiod);
 			minc2.evaluateYatX(timeperiod);
-			List<Segments> minCf = new ArrayList<>();
+			Curve minCf;
 			if(minc1.size() == 1 && minc2.size() == 1)
-				minCf = curveMin(minc1,minc2);
+				minCf = curveMin(minc1,minc2,timeperiod);
 
 			else
 			{
 			if(minc1.getCellValue(0,0) == 0 && minc1.getCellValue(0, 1) == 0 )
 			{
 				capT = minc1.getCellValue(1, 0);
-				b = minc2.getCellValue(1, 1);
+				//b = minc2.getCellValue(1, 1);
 				ArrayList<Double> minCval1 = new ArrayList<Double>();
 				for(int i = 0 ;i < minc2.size();i ++)
 				{
@@ -657,18 +842,20 @@ import java.util.stream.Collectors;
 				}
 
 				Curve minCValshift = new Curve(minCval1, 0);				
-				minCf = curveMin(minCValshift,minc1);
-
-				for(int i = 0; i < minCf.size(); i++) {
-					System.out.println(minCf.get(i));
-				}
+				minCf = curveMin(minCValshift,minc1,timeperiod);
 
 			}
 			else if(minc2.getCellValue(0,0) == 0 && minc2.getCellValue(0, 1) == 0)
 			{
 				capT = minc2.getCellValue(1, 0);
-				b = minc2.getCellValue(1, 1);
-				ArrayList<Double> minCval1 = new ArrayList<Double>();
+				//b = minc2.getCellValue(1, 1);
+				Curve minCval1;
+				minCval1 = shiftOnX(minc1, capT);
+				for(int i =0; i<minCval1.size();i++){
+					System.out.println(minCval1.getSegmentValue(i));
+				 }
+
+/* 				ArrayList<Double> minCval1 = new ArrayList<Double>();
 				for(int i = 0 ;i < minc1.size();i ++)
 				{
 					minCval1.add(minc1.getCellValue(i, 0));
@@ -683,38 +870,17 @@ import java.util.stream.Collectors;
 					minCval1.set(i,newX );
 					//for (Double num:minCval1 )
 					//System.out.println(num);
-				}
+				} */
 
-				Curve minCValshift = new Curve(minCval1, 0);
+				//Curve minCValshift = new Curve(minCval1, 0);
 
 				//for(int i =0; i<minCValshift.size();i++){System.out.println(minCValshift.getSegmentValue(i));}
 
-				minCf = curveMin(minCValshift,minc2);
-
-				for(int i = 0; i < minCf.size(); i++) {
-					System.out.println(minCf.get(i));
-				}
+				minCf = curveMin(minCval1,minc2,timeperiod);
 
 			}
-
-			// ArrayList<Double> minCval1 = new ArrayList<Double>();
-			// ArrayList<Double> minCval2 = new ArrayList<Double>();
-
-			// minCval.add(0,0.0);
-			// minCval.add(1, 0.0);
-			// minCval.add(2,0.0);
-			// for(double t = capT; t <= timeperiod; t = t + 0.01)
-			// {
-			// 	if(t >= capT)
-			// 	{
-			// 		yValue = Math.min(minc1.evaluateYatX(t),minc2.evaluateYatX(t));
-			// 		mincslope = yValue / t; 
-			// 		if(mincslope == 5)
-			// 	}
-			// }
-
-						
-			//Curve minCr = new Curve(minCf, 0);
+			else 
+			minCf = null;
 		}
 			return minCf;
 
@@ -724,80 +890,87 @@ import java.util.stream.Collectors;
 
 		public static Curve maxConv(Curve maxc1, Curve maxc2, int timeperiod)
 		{
-			double capT = 0;
+			//double capT = 0;
 			double b = 0;
 			maxc1.evaluateYatX(timeperiod);
 			maxc2.evaluateYatX(timeperiod);
 			Curve maxCf;
 			if(maxc1.size() == 1 && maxc2.size() == 1)
-				maxCf = curveMax(maxc1,maxc2,timeperiod);
-
+			{
+			maxCf = Curve.curveMax(maxc1,maxc2,timeperiod);
+			}
 			else
 			{
-			if(maxc1.getCellValue(0,0) == 0 && maxc1.getCellValue(0, 1) == 0 )
-			{
-				//capT = minc1.getCellValue(1, 0);
-				b = maxc2.getCellValue(1, 1);
-				ArrayList<Double> maxCval1 = new ArrayList<Double>();
-				for(int i = 0 ;i < maxc1.size();i ++)
+				if(maxc1.getCellValue(0,0) == 0 && maxc1.getCellValue(0, 1) == 0 )
 				{
-					maxCval1.add(maxc1.getCellValue(i, 0));
-					maxCval1.add(maxc1.getCellValue(i, 1));
-					maxCval1.add(maxc1.getCellValue(i, 2));
+					//capT = minc1.getCellValue(1, 0);
+					b = maxc2.getCellValue(0, 1);
+					ArrayList<Double> maxCval1 = new ArrayList<Double>();
+					for(int i = 0 ;i < maxc1.size();i ++)
+					{
+						maxCval1.add(maxc1.getCellValue(i, 0));
+						maxCval1.add(maxc1.getCellValue(i, 1));
+						maxCval1.add(maxc1.getCellValue(i, 2));
+
+					}
+
+					for (int i = 3; i < maxCval1.size();i=i+3)
+					{
+						double newX = maxCval1.get(i) - b;
+						maxCval1.set(i,newX );
+						//for (Double num:minCval1 )
+						//System.out.println(num);
+					}
+
+					Curve maxCValshift = new Curve(maxCval1, 0);
+					for(int i =0; i<maxCValshift.size();i++){
+						System.out.println(maxCValshift.getSegmentValue(i));
+					 }
+								
+					maxCf = Curve.curveMax(maxCValshift,maxc2,timeperiod);
 
 				}
-
-				for (int i = 3; i < maxCval1.size();i=i+3)
+				else if(maxc2.getCellValue(0,0) == 0 && maxc2.getCellValue(0, 1) == 0)
 				{
-					double newX = maxCval1.get(i) - b;
-					maxCval1.set(i,newX );
-					//for (Double num:minCval1 )
-					//System.out.println(num);
-				}
+					//capT = maxc2.getCellValue(1, 0);
+					b = maxc1.getCellValue(0, 1);
+					ArrayList<Double> maxCval1 = new ArrayList<Double>();
+					for(int i = 0 ;i < maxc2.size();i ++)
+					{
+						maxCval1.add(maxc2.getCellValue(i, 0));
+						maxCval1.add(maxc2.getCellValue(i, 1));
+						maxCval1.add(maxc2.getCellValue(i, 2));
 
-				Curve maxCValshift = new Curve(maxCval1, 0);				
-				maxCf = curveMax(maxCValshift,maxc2,timeperiod);
+					}
 
-				for(int i = 0; i < maxCf.size(); i++) {
-					System.out.println(maxCf.get(i));
-				}
+					for (int i = 0; i < maxCval1.size();i=i+3)
+					{
+						double newX = maxCval1.get(i) - b;
+						maxCval1.set(i,newX );
+						//for (Double num:minCval1 )
+						//System.out.println(num);
+					}
 
-			}
-			else if(maxc2.getCellValue(0,0) == 0 && maxc2.getCellValue(0, 1) == 0)
-			{
-				//capT = maxc2.getCellValue(1, 0);
-				b = maxc1.getCellValue(1, 1);
-				ArrayList<Double> maxCval1 = new ArrayList<Double>();
-				for(int i = 0 ;i < maxc2.size();i ++)
+					Curve maxCValshift = new Curve(maxCval1, 0);
+					for(int i =0; i<maxCValshift.size();i++){
+						System.out.println(maxCValshift.getSegmentValue(i));
+					 }
+						
+					//for(int i =0; i<minCValshift.size();i++){System.out.println(minCValshift.getSegmentValue(i));}
+
+					maxCf = Curve.curveMax(maxCValshift,maxc1,timeperiod);
+
+				}	
+				else 
 				{
-					maxCval1.add(maxc2.getCellValue(i, 0));
-					maxCval1.add(maxc2.getCellValue(i, 1));
-					maxCval1.add(maxc2.getCellValue(i, 2));
-
+					System.out.println("input curves must start from x = 0");
+					maxCf = null;
 				}
-
-				for (int i = 0; i < maxCval1.size();i=i+3)
-				{
-					double newX = maxCval1.get(i) + capT;
-					maxCval1.set(i,newX );
-					//for (Double num:minCval1 )
-					//System.out.println(num);
-				}
-
-				Curve maxCValshift = new Curve(maxCval1, 0);
-
-				//for(int i =0; i<minCValshift.size();i++){System.out.println(minCValshift.getSegmentValue(i));}
-
-				maxCf = curveMax(maxCValshift,maxc1,timeperiod);
-
 			}	
-			else 
-			{
-				System.out.println("input curves must start from x = 0");
-			}
+			return maxCf;
 		}
-		return maxCf;
-		}
+		
+
 		
 
 		public static Curve minDConv(Curve minc1, Curve minc2, int timeperiod)
@@ -836,14 +1009,6 @@ import java.util.stream.Collectors;
 					//for (Double num:minCval1 )
 					//System.out.println(num);
 				}
-
-				//Curve minCValshift = new Curve(minCval1, 0);				
-				//minCf = curveMin(minCValshift,minc1);
-
-				//for(int i = 0; i < minCf.size(); i++) {
-				//	System.out.println(minCf.get(i));
-				//}
-
 			}
 			else if(minc2.getCellValue(0,0) == 0 && minc2.getCellValue(0, 1) != 0)
 			{
@@ -871,15 +1036,6 @@ import java.util.stream.Collectors;
 					//System.out.println(num);
 				}
 
-				//Curve minCValshift = new Curve(minCval1, 0);
-
-				//for(int i =0; i<minCValshift.size();i++){System.out.println(minCValshift.getSegmentValue(i));}
-
-				//minCf = curveMin(minCValshift,minc2);
-
-				//for(int i = 0; i < minCf.size(); i++) {
-				//	System.out.println(minCf.get(i));
-				//}
 			}
 			Curve minCValshift = new Curve(minCval1, 0);
 			return minCValshift;	
@@ -920,6 +1076,32 @@ import java.util.stream.Collectors;
 					}
 				}
 			}
+			else if(maxc2.getCellValue(0,0) == 0 && maxc2.getCellValue(0, 1) == 0)
+			{	
+				capT = maxc2.getCellValue(1, 0);
+				b = maxc1.evaluateYatX(capT);
+				
+				for(int i = 0 ;i < maxc1.size();i ++)
+				{
+					maxCval1.add(maxc1.getCellValue(i, 0));
+					maxCval1.add(maxc1.getCellValue(i, 1));
+					maxCval1.add(maxc1.getCellValue(i, 2));
+
+				}
+
+				for (int i = 0; i < maxCval1.size();i=i+3)
+				{
+					//double newX = minCval1.get(i) - capT;
+					if(maxCval1.get(i) == 0)
+					maxCval1.set(i+1,0-b );
+					else 
+					{
+					double newX = maxCval1.get(i) - capT;
+					maxCval1.set(i,newX );
+					maxCval1.set(i+1,(maxCval1.get(i-1) * newX - b ) );
+					}
+				}
+			}	
 			Curve maxCValshift = new Curve(maxCval1,0);
 			return maxCValshift;
 		}			

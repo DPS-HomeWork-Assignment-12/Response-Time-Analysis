@@ -25,7 +25,7 @@ public class Segments extends Curve {
 	}
 
 	/*to get the values of the requested segment*/
-	public List getValue()
+	public List<Double> getValue()
 	{
 
 			return fs;
