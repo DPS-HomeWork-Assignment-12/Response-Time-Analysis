@@ -1,28 +1,25 @@
-import java.util.ArrayList;
-import java.util.List;
-
 public class TesterCurve {
 	public static void main(String args[])
 	{
 		//List<Segments> segment_val = new ArrayList<>();
-		Curve Line1 = new Curve(0,1,0.25,10,3.5,1,15);
+		Curve Line1 = new Curve(0,1,0.25,10,3.5,1);
 		//System.out.println(segment_val);
-		//double y = Line.evaluateYatX(38);
 		//System.out.println("Y evaluated at x is "+y);
 		//for(int i =0; i<Line1.size();i++){
 		//	System.out.println(Line1.getSegmentValue(i));
 		//}
-		Curve Line2 = new Curve(0,0,0,5,0,1,10);
-		
+		Curve Line2 = new Curve(0,0,0,5,0,1);	
 		//for(int i =0; i<Line2.size();i++){
 		//	System.out.println(Line2.getSegmentValue(i));
 		//}
 
 		Curve test1;
-		 test1 = Curve.curveMax(Line1, Line2, 20.0);
-		 for(int i =0; i<test1.size();i++){
-			System.out.println(test1.getSegmentValue(i));
-		 }
+		test1 = Curve.maxDConv(Line2,Line1,20);
+		//System.out.println(test1);
+		 
+		for(int i =0; i<test1.size();i++){
+		System.out.println(test1.getSegmentValue(i));
+		}
 
 		//segment_val = Curve.curveMin(Line1, Line2);
 		//Curve.printCurve(segment_val);
