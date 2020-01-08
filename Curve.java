@@ -13,6 +13,7 @@ import java.util.stream.Collectors;
 		private double x_intercept; // refers to'x' in straight line equation : y=m*x +c
 		private double y_intercept;//refers to the 'c' in straight line equation: y = m*x + c
 		private double slope;//refers to 'm' in in straight line equation: y = m*x + c
+		private int numSeg;
 
 		List<Segments> ds = new ArrayList<>();//List which stores the segments of the curve
 
@@ -98,6 +99,7 @@ import java.util.stream.Collectors;
 						ds.add(segment);	// now add the segment object to the 'ds' arraylist	
 						j +=3; //increment counter by 3 to get the next set of 3 values.
 				}
+				numSeg = ds.size()-1;
 			}
 
 			/*
@@ -133,6 +135,7 @@ import java.util.stream.Collectors;
 							i = (seg.length/3)+1;
 						}
 						j +=3;//increment counter by 3 to get the next set of 3 values.
+						numSeg=ds.size()-1;
 			
 				}	
 			}	
@@ -235,7 +238,7 @@ import java.util.stream.Collectors;
 				else//if the period starts after all the segments start, implements below
 				{
 					double xVal = 0; 
-					int numSeg = ds.size() - 1; //stores number of segments in the curve arraylist
+					//int numSeg = ds.size() - 1; //stores number of segments in the curve arraylist
 					/*
 					* A do while loop to add the new values to the curve arraylist till it reaches the x value 
 					*/
@@ -251,7 +254,7 @@ import java.util.stream.Collectors;
 						
 				
 						
-					}while(xVal <= x); /*repeat this till X value is less than or equal to the input x value.*/
+					}while(xVal < x); /*repeat this till X value is less than or equal to the input x value.*/
 
 					for(int i = 0;i<ds.size();i++)
 					{
@@ -271,6 +274,62 @@ import java.util.stream.Collectors;
 		}
 		
 		/*********************************************************************************
+		 * ExpandOnXaxis To expand the Y values till the given X co-ordinate of any curve
+		 * @param timePeriod 
+		 * @return Expanded Curve
+		 *********************************************************************************/
+		public  Curve ExpandOnXaxis(double timePeriod)
+		{
+			Curve expandedCurve;//intialize new curve object to store final result
+			ArrayList<Double> exp1= new ArrayList<>();//intialize new array object
+			//int numSeg = ds.size()-1;
+			//ArrayList<Double> exp2= new ArrayList<>();
+			if((ds.get(ds.size()-1).getarrayValue(0))<timePeriod && period !=0)//if condition to identify the segment the x value belongs to.
+			{
+				for (int i = 0; i < ds.size(); i++)//storing the parent curve object into an arraylist
+				{
+					exp1.add(ds.get(i).getarrayValue(0));
+					exp1.add(ds.get(i).getarrayValue(1));
+					exp1.add(ds.get(i).getarrayValue(2));
+				}
+				
+				
+				double xVal =0;
+				/*
+				* A do while loop to add the new values to the curve arraylist till it reaches the x value .
+				*/
+				do
+					{
+						int size=ds.size();
+						//System.out.println("size is " +size);
+						exp1.add(ds.get(size-1).getarrayValue(0)+ds.get(size-numSeg).getarrayValue(0)-ds.get(size-numSeg-1).getarrayValue(0)); 
+						//exp1.add(expandedCurve.getCellValue((size-1),(0))+expandedCurve.getCellValue((size-numSeg),(0))-expandedCurve.getCellValue((size-numSeg-1),0)); //Calculates the x value of the next segment to be stored in the arraylist
+						exp1.add(ds.get(size-numSeg).getarrayValue(2));
+						//exp1.add(expandedCurve.getCellValue((size-numSeg),2));//Calculates the slope value of the next segment to be stored in the arraylist
+						exp1.add(ds.get(size-1).getarrayValue(1)+ds.get(size-numSeg).getarrayValue(1)-ds.get(size-numSeg-1).getarrayValue(1));
+						//exp1.add(expandedCurve.getCellValue((size-1),1) + expandedCurve.getCellValue((size-numSeg),1)-expandedCurve.getCellValue((size-numSeg-1),1));//Calculates the y value of the next segment to be stored in the arraylist
+						//Segments segment = new Segments(xVal, yVal, slopeVal); // Add the above 3 values to the segment object
+						//ds.add(segment);// add the segement to the curve arraylist
+						
+						
+					}while(xVal <= timePeriod); /*repeat this till X value is less than or equal to the input x value.*/
+						
+					
+			}
+			else 
+			{
+				for (int i = 0; i < ds.size(); i++)
+				{
+					exp1.add(ds.get(i).getarrayValue(0));
+					exp1.add(ds.get(i).getarrayValue(1));
+					exp1.add(ds.get(i).getarrayValue(2));
+				}
+			}
+			expandedCurve = new Curve(exp1, 2); //store the elements in the curve object
+			return expandedCurve;
+		}
+
+		/*********************************************************************************
 		 * evaluateSatX To Evaluate slope value at a given X co-ordinate of any curve
 		 * @param x Co-ordinate
 		 * @return slope value at the given x co-ordinate on the curve
@@ -278,9 +337,9 @@ import java.util.stream.Collectors;
 		public double evaluateSatX(double x)
 		{
 			double y = evaluateYatX(x);//Calculating Y value at the given X value.
-			for(int i = 0;i<ds.size();i++)
+			for(int i = 0;i<ds.size()-1;i++)
 			{
-				if(y >= ds.get(i).getarrayValue(1))//if condition to identify the segment the y value belongs to
+				if(y > ds.get(i).getarrayValue(1)&& y <ds.get(i+1).getarrayValue(1) )//if condition to identify the segment the y value belongs to
 				{
 					slope = ds.get(i).getarrayValue(2); //get the slope value from the corresponding segment
 					
@@ -298,10 +357,10 @@ import java.util.stream.Collectors;
 		 * @param timePeriod Time period until which the two curves are multiplied
 		 * @return c3 Resultant Curve which consists of only x and y co-ordinates without slope value
 		 ***************************************************************************************************/
-		public static  Curve multiplicationOfTwoCurves(Curve c1, Curve c2, double timePeriod)
+		public static  Curve multiplicationOfTwoCurves(Curve curve1, Curve curve2, double timePeriod)
 		{
-			c1.evaluateYatX(timePeriod); 	// Using evaluateYatX method to expand the arraylist till timeperiod
-			c2.evaluateYatX(timePeriod); 	// Using evaluateYatX method to expand the arraylist till timeperiod
+			Curve c1 = curve1.ExpandOnXaxis( timePeriod); 	// Using evaluateYatX method to expand the arraylist till timeperiod
+			Curve c2 = curve2.ExpandOnXaxis(timePeriod); 	// Using evaluateYatX method to expand the arraylist till timeperiod
 			ArrayList<Double> al1 = new ArrayList<>(); // new arraylist to store the the x co-ordinates
 			/*
 			*for loop to get the x-co-ordinates from the first curve and store them in an arraylist
@@ -345,11 +404,12 @@ import java.util.stream.Collectors;
 		 * @param timePeriod Timeperiod until which the curve must be ceiled
 		 * @return ceiledcurve
 		 ***************************************************************************************************************************/
-		public static Curve ceil(Curve curve1, int timePeriod)
+		public static Curve ceil(Curve c1, int timePeriod)
 		{
 			ArrayList<Double> ceil1 = new ArrayList<>(); // To store the values of the ceiled curve
 			double slope = 0; //ceiled curve is divided into segments with zero slope.
-			curve1.evaluateYatX(timePeriod);  // expanding the curve through the evaluateYatX method till X is timePeriod
+			Curve curve1 = c1.ExpandOnXaxis(timePeriod);
+			//curve1.evaluateYatX(timePeriod);  // expanding the curve through the evaluateYatX method till X is timePeriod
 			for (int i =0; i<timePeriod;i++) //Y value is evaluated in increments of 1 on x axis till it reaches timeperiod
 			{
 			if(curve1.EvaluateXatY(i) <= timePeriod) // condition to check if the X value at given Y value is less than the time period
@@ -369,11 +429,12 @@ import java.util.stream.Collectors;
 		 * @param timePeriod imeperiod until which the curve must floored
 		 * @return flooredcurve
 		 ******************************************************************************************************************************/
-		public static Curve floor(Curve curve1, int timePeriod)
+		public static Curve floor(Curve c1, int timePeriod)
 		{
 			ArrayList<Double> floor1 = new ArrayList<>(); // To store the values of the floored curve
 			double slope = 0;//floored curve is divided into segments with zero slope.
-			curve1.evaluateYatX(timePeriod); // expanding the curve through the evaluateYatX method till X is timePeriod
+			Curve curve1 = c1.ExpandOnXaxis(timePeriod);
+			//curve1.evaluateYatX(timePeriod); // expanding the curve through the evaluateYatX method till X is timePeriod
 			for (int i =0; i<timePeriod;i++) //Y value is evaluated in increments of 1 on x axis till it reaches timeperiod
 			{
 			if(curve1.EvaluateXatY(i) <= timePeriod)// condition to check if the X value at given Y value is less than the time period
@@ -698,10 +759,10 @@ import java.util.stream.Collectors;
 		 * @return c3 Resultant Curve
 		 ***************************************************************************************************/
 
-		public static Curve addCurve(Curve c1, Curve c2, double timePeriod)
+		public static Curve addCurve(Curve curve1, Curve curve2, double timePeriod)
 		{
-			c1.evaluateYatX(timePeriod); 	// Using evaluateYatX method to expand the arraylist till timeperiod
-			c2.evaluateYatX(timePeriod);	// Using evaluateYatX method to expand the arraylist till timeperiod
+			Curve c1 = curve1.ExpandOnXaxis( timePeriod);// Using ExpandOnXaxis method to expand the arraylist till timeperiod
+			Curve c2 = curve2.ExpandOnXaxis( timePeriod);// Using ExpandOnXaxis method to expand the arraylist till timeperiod
 			ArrayList<Double> al1 = new ArrayList<>(); // new arraylist to store the the x co-ordinates
 			/*
 			*for loop to get the x-co-ordinates from the first curve and store them in an arraylist
@@ -715,7 +776,6 @@ import java.util.stream.Collectors;
 			for (int i = 0; i < c2.size(); i++)
 				al1.add(c2.getCellValue(i,0));
 
-			
 
 			Collections.sort(al1);//sort the elements in the arraylist in ascending order
 			List<Double> al2 = al1.stream().distinct().collect(Collectors.toList()); //remove duplicate elements in the arraylist
@@ -745,10 +805,10 @@ import java.util.stream.Collectors;
 		 * @param timePeriod Time period until which the two curves are multiplied
 		 * @return c3 Resultant Curve
 		 ***************************************************************************************************/
-		public static  Curve curveMax(Curve c1, Curve c2, double timePeriod)
+		public static  Curve curveMax(Curve curve1, Curve curve2, double timePeriod)
 		{
-			c1.evaluateYatX(timePeriod); 	// Using evaluateYatX method to expand the arraylist till timeperiod
-			c2.evaluateYatX(timePeriod);	// Using evaluateYatX method to expand the arraylist till timeperiod
+			Curve c1 = curve1.ExpandOnXaxis(timePeriod);// Using ExpandOnXaxis method to expand the arraylist till timeperiod
+			Curve c2 = curve2.ExpandOnXaxis(timePeriod);// Using ExpandOnXaxis method to expand the arraylist till timeperiod
 			ArrayList<Double> al1 = new ArrayList<>(); // new arraylist to store the the x co-ordinates
 			/*
 			*for loop to get the x-co-ordinates from the first curve and store them in an arraylist
@@ -787,14 +847,27 @@ import java.util.stream.Collectors;
 
 				}
 				
-				else
+				else if(c1.evaluateYatX(xval) <c2.evaluateYatX(xval))
 				{
 					/* if c2 curve is greater than c1 curve then add the y-value and slope in the arraylist*/
 					al3.add(c2.evaluateYatX(xval));
 					al3.add(c2.evaluateSatX(xval));
 
 				}
-				
+				else 
+				{
+					if(c1.evaluateSatX(xval)>c2.evaluateSatX(xval))
+					{
+						al3.add(c1.evaluateYatX(xval));
+						al3.add(c1.evaluateSatX(xval));
+
+					}
+					else
+					{
+						al3.add(c2.evaluateYatX(xval));
+						al3.add(c2.evaluateSatX(xval));
+					}
+				}
 			}
 			Curve c3 = new Curve(al3,2); // new curve object created with the input as the final resultant arraylist
 			return c3; 
@@ -837,10 +910,10 @@ import java.util.stream.Collectors;
 		 * @return c3 Resultant Curve
 		 ***************************************************************************************************/
 		
-		public static  Curve curveMin(Curve c1, Curve c2, double timePeriod)
+		public static  Curve curveMin(Curve curve1, Curve curve2, double timePeriod)
 		{
-			c1.evaluateYatX(timePeriod); 	// Using evaluateYatX method to expand the arraylist till timeperiod
-			c2.evaluateYatX(timePeriod);	// Using evaluateYatX method to expand the arraylist till timeperiod
+			Curve c1 = curve1.ExpandOnXaxis(timePeriod);// Using ExpandOnXaxis method to expand the arraylist till timeperiod
+			Curve c2 = curve2.ExpandOnXaxis(timePeriod);// Using ExpandOnXaxis method to expand the arraylist till timeperiod
 			ArrayList<Double> al1 = new ArrayList<>(); // new arraylist to store the the x co-ordinates
 			/*
 			*for loop to get the x-co-ordinates from the first curve and store them in an arraylist
@@ -869,19 +942,33 @@ import java.util.stream.Collectors;
 				* Evaluating and comparing the y-values of both the curves
 				* if c1 curve is lesser than c2 curve then add the y-value and slope in the arraylist
 				*/
-				if(c1.evaluateYatX(xval) <= c2.evaluateYatX(xval) )
+				if(c1.evaluateYatX(xval) < c2.evaluateYatX(xval) )
 				{
 					al3.add(c1.evaluateYatX(xval));
 					al3.add(c1.evaluateSatX(xval));
 
 				}
 				
-				else
+				else if(c1.evaluateYatX(xval) > c2.evaluateYatX(xval) )
 				{
 					/* if c2 curve is lesser than c1 curve then add the y-value and slope in the arraylist*/
 					al3.add(c2.evaluateYatX(xval));
 					al3.add(c2.evaluateSatX(xval));
 
+				}
+				else 
+				{
+					if(c1.evaluateSatX(xval) < c2.evaluateSatX(xval))
+					{
+						al3.add(c1.evaluateYatX(xval));
+						al3.add(c1.evaluateSatX(xval));
+
+					}
+					else
+					{
+						al3.add(c2.evaluateYatX(xval));
+						al3.add(c2.evaluateSatX(xval));
+					}	
 				}
 				
 			}
@@ -896,48 +983,34 @@ import java.util.stream.Collectors;
 		 * @param timePeriod Time period until which the two curves are multiplied
 		 * @return c3 Resultant Curve
 		 ***************************************************************************************************/
-		public static Curve minConv(Curve minc1, Curve minc2, int timeperiod)
+		public static Curve minConv(Curve curve1, Curve curve2, int timePeriod)
 		{	
 			/*declaring and intialising the latency*/
 			double capT = 0;
 			//double b=0;
-			minc1.evaluateYatX(timeperiod);// Using evaluateYatX method to expand the arraylist till timeperiod
-			minc2.evaluateYatX(timeperiod);// Using evaluateYatX method to expand the arraylist till timeperiod
+			Curve minc1 = curve1.ExpandOnXaxis(timePeriod);// Using ExpandOnXaxis method to expand the arraylist till timeperiod
+			Curve minc2 = curve2.ExpandOnXaxis(timePeriod);// Using ExpandOnXaxis method to expand the arraylist till timeperiod
+		
 			Curve minCf;
 			/* if the size of both the curves are only one segment then Minimum of two curves is the resultant curve*/
 			if(minc1.size() == 1 && minc2.size() == 1)
-				minCf = curveMin(minc1,minc2,timeperiod);
+				minCf = curveMin(minc1,minc2,timePeriod);
 
 			else
 			{
-			if(minc1.getCellValue(0,0) == 0 && minc1.getCellValue(0, 1) == 0 )
+			if(minc1.getCellValue(0,0) == 0 && minc1.getCellValue(0, 1) == 0 && minc1.getCellValue(0, 2)==0)
 			{
 				/*if both the x and y value of the segment of curve1 is 0, get the x value of second segment for latency time T*/
 				capT = minc1.getCellValue(1, 0);
 				//b = minc2.getCellValue(1, 1);
-				ArrayList<Double> minCval1 = new ArrayList<Double>();//creating a new arraylist to store the values of second curve.
-				for(int i = 0 ;i < minc2.size();i ++)
-				{
-					/*adding the values of the curve to the arraylist*/
-					minCval1.add(minc2.getCellValue(i, 0));
-					minCval1.add(minc2.getCellValue(i, 1));
-					minCval1.add(minc2.getCellValue(i, 2));
-
-				}
-
-				for (int i = 0; i < minCval1.size();i=i+3)
-				{
-					/*adding the time latency T to the x-axis*/
-					double newX = minCval1.get(i) + capT;
-					minCval1.set(i,newX );
-					
-				}
-				/*calculating the min-plus convolution by shifting and finding the minimum of the curves*/
-				Curve minCValshift = new Curve(minCval1, 0);
-				minCf = curveMin(minCValshift,minc1,timeperiod);
+				Curve minCval1;
+				/*shifting on x for the latency period T*/
+				minCval1 = shiftOnX(minc2, capT);
+				/*finding the minimum of the curve*/
+				minCf = curveMin(minCval1,minc1,timePeriod);
 
 			}
-			else if(minc2.getCellValue(0,0) == 0 && minc2.getCellValue(0, 1) == 0)
+			else if(minc2.getCellValue(0,0) == 0 && minc2.getCellValue(0, 1) == 0 && minc2.getCellValue(0, 2)==0)
 			{
 				/*if both the x and y value of the segment of curve2 is 0, get the x value of second segment for latency time T*/
 				capT = minc2.getCellValue(1, 0);
@@ -945,11 +1018,8 @@ import java.util.stream.Collectors;
 				Curve minCval1;
 				/*shifting on x for the latency period T*/
 				minCval1 = shiftOnX(minc1, capT);
-				for(int i =0; i<minCval1.size();i++){
-				//	System.out.println(minCval1.getSegmentValue(i));
-				 }
 				/*finding the minimum of the curve*/
-				minCf = curveMin(minCval1,minc2,timeperiod);
+				minCf = curveMin(minCval1,minc2,timePeriod);
 			}
 			else 
 			minCf = null;
@@ -966,13 +1036,12 @@ import java.util.stream.Collectors;
 		 * @return c3 Resultant Curve
 		 ***************************************************************************************************/
 
-		public static Curve maxConv(Curve maxc1, Curve maxc2, int timeperiod)
+		public static Curve maxConv(Curve curve1, Curve curve2, int timeperiod)
 		{
 			//double capT = 0;
-			/**/
 			double b = 0;
-			maxc1.evaluateYatX(timeperiod);// Using evaluateYatX method to expand the arraylist till timeperiod
-			maxc2.evaluateYatX(timeperiod);// Using evaluateYatX method to expand the arraylist till timeperiod
+			Curve maxc1 = curve1.ExpandOnXaxis(timeperiod);// Using ExpandOnXaxis method to expand the arraylist till timeperiod
+			Curve maxc2 = curve2.ExpandOnXaxis(timeperiod);// Using ExpandOnXaxis method to expand the arraylist till timeperiod
 			Curve maxCf;
 			/* if the size of both the curves are only one segment then Maximum of two curves is the resultant curve*/
 			if(maxc1.size() == 1 && maxc2.size() == 1)
@@ -1062,12 +1131,12 @@ import java.util.stream.Collectors;
 		 * @return c3 Resultant Curve
 		 ***************************************************************************************************/	
 
-		public static Curve minDConv(Curve minc1, Curve minc2, int timeperiod)
+		public static Curve minDConv(Curve curve1, Curve curve2, int timeperiod)
 		{
 			double capT = 0;
 			double b = 0;
-			minc1.evaluateYatX(timeperiod);//Using evaluateYatX method to expand the arraylist till timeperiod
-			minc2.evaluateYatX(timeperiod);//Using evaluateYatX method to expand the arraylist till timeperiod
+			Curve minc1 = curve1.ExpandOnXaxis(timeperiod);//Using ExpandOnXaxis method to expand the arraylist till timeperiod
+			Curve minc2 = curve2.ExpandOnXaxis(timeperiod);//Using ExpandOnXaxis method to expand the arraylist till timeperiod
 			//List<Segments> maxCf = new ArrayList<>();
 			ArrayList<Double> minCval1 = new ArrayList<Double>();//creating arraylist to store the values
 			
@@ -1080,28 +1149,29 @@ import java.util.stream.Collectors;
 				
 				for(int i = 0 ;i < minc1.size();i ++)
 				{
-					//adding the curve values for the arraylist
-					minCval1.add(minc1.getCellValue(i, 0));
-					minCval1.add(minc1.getCellValue(i, 1));
-					minCval1.add(minc1.getCellValue(i, 2));
-
-				}
-
-				for (int i = 0; i < minCval1.size();i=i+3)
-				{
-					//double newX = minCval1.get(i) - capT;
-					if(minCval1.get(i) == 0)
-					minCval1.set(i+1,b );
-					else 
+					if(minc1.getCellValue(i, 0)==0)
 					{
-					double newX = minCval1.get(i) - capT;
-					minCval1.set(i,newX );
+						
+						minCval1.add(minc1.getCellValue(i, 0));
+						minCval1.add(minc1.getCellValue(i, 1)+b);
+						minCval1.add(minc1.getCellValue(i, 2));
 					}
-
-					//for (Double num:minCval1 )
-					//System.out.println(num);
+					else
+					{
+						double newX = minc1.getCellValue(i, 0)-capT;
+						if(newX>0)
+						{
+							minCval1.add(newX);
+							minCval1.add(minc1.getCellValue(i, 1));
+							minCval1.add(minc1.getCellValue(i, 2));
+						}
+					}
 				}
+
 			}
+
+				
+			
 			else if(minc2.getCellValue(0,0) == 0 && minc2.getCellValue(0, 1) != 0)
 			{
 				/*if the x  value of the segment of curve 2 is 0 and y value is not zero, 
@@ -1112,27 +1182,85 @@ import java.util.stream.Collectors;
 				for(int i = 0 ;i < minc2.size();i ++)
 				{
 					//adding the curve values to the arraylist
-					minCval1.add(minc2.getCellValue(i, 0));
-					minCval1.add(minc2.getCellValue(i, 1));
-					minCval1.add(minc2.getCellValue(i, 2));
-
-				}
-
-				for (int i = 0; i < minCval1.size();i=i+3)
-				{
-					if(minCval1.get(i) == 0)
-						minCval1.set(i+1,b );
-					else 
+					if(minc2.getCellValue(i, 0)==0)
 					{
-						double newX = minCval1.get(i) - capT;
-						minCval1.set(i,newX );
+					minCval1.add(minc2.getCellValue(i, 0));
+					minCval1.add(minc2.getCellValue(i, 1)+b);
+					minCval1.add(minc2.getCellValue(i, 2));
 					}
-					//for (Double num:minCval1 )
-					//System.out.println(num);
+					else
+					{
+						double newX = minc2.getCellValue(i, 0)-capT;
+						if(newX>0)
+						{
+						minCval1.add(newX);
+						minCval1.add(minc2.getCellValue(i, 1));
+						minCval1.add(minc2.getCellValue(i, 2));
+						}
+					}
+
+				}
+			}
+			else if(minc1.getCellValue(0, 2)>minc2.getCellValue(0, 2))
+			{
+					/*if the x  value of the segment of curve 1 is 0 and y value is not zero, 
+				 * get the x value of second segment of curve 2 and y value at this point for offset b*/
+				capT = minc2.getCellValue(1, 0);
+				b = minc1.evaluateYatX(capT);
+				
+				for(int i = 0 ;i < minc1.size();i ++)
+				{
+					//adding the curve values for the arraylist
+					if(minc1.getCellValue(i, 0)==0)
+					{
+					minCval1.add(minc1.getCellValue(i, 0));
+					minCval1.add(minc1.getCellValue(i, 1)+b);
+					minCval1.add(minc1.getCellValue(i, 2));
+					}
+					else
+					{
+						double newX = minc1.getCellValue(i, 0)-capT;
+						if(newX>0)
+						{
+						minCval1.add(newX);
+						minCval1.add(minc1.getCellValue(i, 1));
+						minCval1.add(minc1.getCellValue(i, 2));
+						}
+					}
+
 				}
 
-			}
 			
+			}
+			else 
+			{
+				/*if the x  value of the segment of curve 2 is 0 and y value is not zero, 
+				 * get the x value of second segment of curve 1 and y value at this point for offset b*/
+				capT = minc1.getCellValue(1, 0);
+				b = minc2.evaluateYatX(capT);
+
+				for(int i = 0 ;i < minc2.size();i ++)
+				{
+					//adding the curve values to the arraylist
+					if(minc2.getCellValue(i, 0)==0)
+					{
+					minCval1.add(minc2.getCellValue(i, 0));
+					minCval1.add(minc2.getCellValue(i, 1)+b);
+					minCval1.add(minc2.getCellValue(i, 2));
+					}
+					else
+					{
+						double newX = minc2.getCellValue(i, 0)-capT;
+						if(newX>0)
+						{
+						minCval1.add(newX);
+						minCval1.add(minc2.getCellValue(i, 1));
+						minCval1.add(minc2.getCellValue(i, 2));
+						}
+					}
+
+				}
+			}	
 			Curve minCValshift = new Curve(minCval1, 0);
 			// return the resultant curve
 			return minCValshift;	
@@ -1146,16 +1274,16 @@ import java.util.stream.Collectors;
 		 * @return c3 Resultant Curve
 		 ***************************************************************************************************/
 
-		public static Curve maxDConv(Curve maxc1, Curve maxc2, int timeperiod)
+		public static Curve maxDConv(Curve curve1, Curve curve2, int timeperiod)
 		{
 			double capT = 0;
 			double b = 0;
-			maxc1.evaluateYatX(timeperiod); //Using evaluateYatX method to expand the arraylist till timeperiod
-			maxc2.evaluateYatX(timeperiod); //Using evaluateYatX method to expand the arraylist till timeperiod
+			Curve maxc1 = curve1.ExpandOnXaxis(timeperiod); //Using evaluateYatX method to expand the arraylist till timeperiod
+			Curve maxc2 = curve2.ExpandOnXaxis(timeperiod); //Using evaluateYatX method to expand the arraylist till timeperiod
 			//List<Segments> maxCf = new ArrayList<>();
 			ArrayList<Double> maxCval1 = new ArrayList<Double>();//creating arraylist to store the values
-			
-			if(maxc1.getCellValue(0,0) == 0 && maxc1.getCellValue(0, 1) == 0 )
+			double newX = 0;
+			if(maxc1.getCellValue(0,0) == 0 && maxc1.getCellValue(0, 1) == 0 && maxc1.getCellValue(0, 2)==0 )
 			{
 				/*if the x  value of the segment of curve 1 is 0 and y value is zero, 
 				 * get the x value of second segment of curve 1 and y value at this point for offset b*/
@@ -1165,22 +1293,31 @@ import java.util.stream.Collectors;
 				for(int i = 0 ;i < maxc2.size();i ++)
 				{
 					// adding the curve values to the arraylist
-					maxCval1.add(maxc2.getCellValue(i, 0));
-					maxCval1.add(maxc2.getCellValue(i, 1));
-					maxCval1.add(maxc2.getCellValue(i, 2));
-
-				}
-
-				for (int i = 0; i < maxCval1.size();i=i+3)
-				{
-					//double newX = minCval1.get(i) - capT;
-					if(maxCval1.get(i) == 0)
-					maxCval1.set(i+1,0-b );
-					else 
+					if(maxc2.getCellValue(i, 0)==0)
 					{
-					double newX = maxCval1.get(i) - capT;
-					maxCval1.set(i,newX );
-					maxCval1.set(i+1,(maxCval1.get(i-1) * newX - b ) );
+					maxCval1.add(maxc2.getCellValue(i, 0));
+					maxCval1.add(maxc2.getCellValue(i, 1)-b);
+					maxCval1.add(maxc2.getCellValue(i, 2));
+					}
+					else 
+					{	
+						
+						newX = maxc2.getCellValue(i,0) - capT;
+						if(newX>0)
+						{
+							maxCval1.add(newX);
+							if((maxCval1.get(maxCval1.size()-2))*(newX - maxCval1.get(maxCval1.size()-4)) + maxCval1.get(maxCval1.size()-3)  < 0)
+							{
+							maxCval1.add((maxCval1.get(maxCval1.size()-2))*(newX - maxCval1.get(maxCval1.size()-4)) + maxCval1.get(maxCval1.size()-3) );
+							maxCval1.add(maxc2.evaluateSatX(maxc2.getCellValue(i, 0)));
+							}
+							else
+							{
+							maxCval1.add(maxc1.evaluateYatX(newX));
+
+							maxCval1.add(maxc1.evaluateSatX(newX));
+							}
+						}
 					}
 				}
 			}
@@ -1193,26 +1330,33 @@ import java.util.stream.Collectors;
 				
 				for(int i = 0 ;i < maxc1.size();i ++)
 				{
-					//adding the curve values to the arraylist
-					maxCval1.add(maxc1.getCellValue(i, 0));
-					maxCval1.add(maxc1.getCellValue(i, 1));
-					maxCval1.add(maxc1.getCellValue(i, 2));
-
-				}
-
-				for (int i = 0; i < maxCval1.size();i=i+3)
-				{
-					//double newX = minCval1.get(i) - capT;
-					if(maxCval1.get(i) == 0)
-					maxCval1.set(i+1,0-b );
-					else 
+					if(maxc1.getCellValue(i, 0)==0)
 					{
-					double newX = maxCval1.get(i) - capT;
-					maxCval1.set(i,newX );
-					maxCval1.set(i+1,(maxCval1.get(i-1) * newX - b ) );
+					maxCval1.add(maxc1.getCellValue(i, 0));
+					maxCval1.add(maxc1.getCellValue(i, 1)-b);
+					maxCval1.add(maxc1.getCellValue(i, 2));
+					}
+					else 
+					{	
+						
+						newX = maxc1.getCellValue(i,0) - capT;
+						if(newX>0)
+						{
+							maxCval1.add(newX);
+							if((maxCval1.get(maxCval1.size()-2))*(newX - maxCval1.get(maxCval1.size()-4)) + maxCval1.get(maxCval1.size()-3)  < 0)
+							{
+							maxCval1.add((maxCval1.get(maxCval1.size()-2))*(newX - maxCval1.get(maxCval1.size()-4)) + maxCval1.get(maxCval1.size()-3) );
+							maxCval1.add(maxc1.evaluateSatX(maxc1.getCellValue(i, 0)));
+							}
+							else
+							{
+							maxCval1.add(maxc2.evaluateYatX(newX));
+							maxCval1.add(maxc2.evaluateSatX(newX));
+							}
+						}
 					}
 				}
-			}	
+			}
 			Curve maxCValshift = new Curve(maxCval1,0);
 			//returning the resultant curve
 			return maxCValshift;
@@ -1258,7 +1402,7 @@ import java.util.stream.Collectors;
 		{
 			for(int i=0;i<a.size();i++)
 			{
-					System.out.println(a.getSegmentValue(i));
+					System.out.print(a.getSegmentValue(i));
 			}
 		}	
 	}
